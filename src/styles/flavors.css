@@ -1,0 +1,46 @@
+/* Theme flavors. Toggled via [data-flavor="..."] on <html>.
+ * Default (no attribute) = Basic (Genesis neutral palette + Inter).
+ * Fun = orange brand + Plus Jakarta Sans + heavier display weights.
+ *
+ * Implemented by overriding the brand palette tokens and font vars; the
+ * semantic tokens in theme.css reference these and update automatically.
+ */
+
+[data-flavor="fun"] {
+    /* --- Orange brand palette (replaces Genesis's neutral grays) --- */
+    --color-brand-25: #fffaf5;
+    --color-brand-50: #fff7ed;
+    --color-brand-100: #ffedd5;
+    --color-brand-200: #fed7aa;
+    --color-brand-300: #fdba74;
+    --color-brand-400: #fb923c;
+    --color-brand-500: #f97316;
+    --color-brand-600: #ea580c;
+    --color-brand-700: #c2410c;
+    --color-brand-800: #9a3412;
+    --color-brand-900: #7c2d12;
+    --color-brand-950: #431407;
+
+    /* --- Plus Jakarta Sans across body and display --- */
+    --font-body: "Plus Jakarta Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-display: "Plus Jakarta Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+    /* --- Stronger header / paragraph contrast --- */
+    /* Body text gets darker for stronger hierarchy. */
+    --color-text-tertiary: var(--color-neutral-700);
+    --color-text-secondary: var(--color-neutral-800);
+}
+
+/* Heavier display weights and tighter tracking in fun flavor.
+ * Targets any element whose class begins with "text-display-" — that's
+ * how all primitive titles are styled. */
+[data-flavor="fun"] [class*="text-display-"] {
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+/* Slightly bolder paragraphs so the contrast against the heavier headings
+ * still reads as a clear two-step hierarchy rather than a giant gap. */
+[data-flavor="fun"] p {
+    font-weight: 450;
+}
