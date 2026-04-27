@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dex thesis test — slides ↔ markdown</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="slides-data.js"></script>
+<style>
+  :root {
+    --clean: #2ea043;
+    --strain: #d29922;
+    --forced: #fb8500;
+    --broke: #cf222e;
+    --bg: #fafafa;
+    --card: #fff;
+    --border: #e1e4e8;
+    --ink: #1f2328;
+    --muted: #57606a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot.clean { background: var(--clean); }
+  .dot.strain { background: var(--strain); }
+  .dot.forced { background: var(--forced); }
+  .dot.broke { background: var(--broke); }
+
+  main { padding: 24px 32px; max-width: 1600px; margin: 0 auto; }
+  .section-title {
+    font-size: 18px;
+    margin: 32px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .slide {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #f6f8fa;
+  }
+  .slide-header .id { font-weight: 600; font-size: 14px; }
+  .slide-header .desc { color: var(--muted); font-size: 13px; flex: 1; margin: 0 12px; }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .badge.clean { background: var(--clean); }
+  .badge.strain { background: var(--strain); }
+  .badge.forced { background: var(--forced); }
+  .badge.broke { background: var(--broke); }
+
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .pane {
+    background: var(--card);
+    padding: 16px;
+    overflow: auto;
+  }
+  .pane.original img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--border);
+  }
+  .pane.original .multi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pane.shape {
+    background: #f6f8fa;
+    font-family: ui-monospace, SF Mono, Menlo, monospace;
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .pane.shape h4 { margin: 0 0 8px; font-size: 13px; font-family: -apple-system, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .pane.shape .meta { display: grid; grid-template-columns: 100px 1fr; row-gap: 4px; column-gap: 8px; margin-bottom: 12px; }
+  .pane.shape .meta dt { color: var(--muted); }
+  .pane.shape .meta dd { margin: 0; font-weight: 500; }
+  .pane.shape pre.wireframe {
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+  .pane.shape .ana { font-family: -apple-system, sans-serif; font-size: 12px; color: var(--muted); font-style: italic; }
+  .pane.markdown pre {
+    margin: 0;
+    background: #f6f8fa;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .pane.markdown .rendered {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .pane.markdown .rendered h1 { font-size: 18px; margin: 0 0 8px; }
+  .pane.markdown .rendered h2 { font-size: 15px; margin: 12px 0 6px; }
+  .pane.markdown .rendered ul { margin: 4px 0; padding-left: 20px; }
+  .pane.markdown .rendered li { margin: 2px 0; }
+  .pane.markdown .rendered blockquote {
+    border-left: 3px solid var(--border);
+    margin: 8px 0;
+    padding: 4px 12px;
+    color: var(--muted);
+  }
+  .pane.markdown .rendered img { display: none; }
+  .pane.markdown .note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: #fff8c5;
+    border-radius: 4px;
+  }
+  .toggle {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .rendered-wrap { display: none; }
+  .rendered-wrap.show { display: block; }
+
+  /* Compact toggle: source / rendered */
+  .tabs { display: flex; gap: 4px; margin-bottom: 8px; font-size: 11px; }
+  .tab {
+    padding: 3px 8px;
+    background: #f6f8fa;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dex thesis test — original slides ↔ nested-list markdown</h1>
+  <p>34 slides from 4 public decks. Side-by-side: PDF page on the left, markdown attempt on the right.</p>
+  <div class="legend">
+    <span><span class="dot clean"></span>clean — tree captures it</span>
+    <span><span class="dot strain"></span>strained — needs typed block for charts</span>
+    <span><span class="dot forced"></span>forced — needs image directives</span>
+    <span><span class="dot broke"></span>broke — graph/2D-spatial, not a tree</span>
+  </div>
+</header>
+
+<main>
+
+<h2 class="section-title">A. Airbnb 2008 pitch deck (14 slides)</h2>
+
+<div class="slide" data-slides="airbnb-01.jpg" data-fit="clean" data-id="A1" data-desc="Title — logo + tagline" data-md="# AirBed&Breakfast
+Book rooms with locals, rather than hotels."></div>
+
+<div class="slide" data-slides="airbnb-02.jpg" data-fit="clean" data-id="A2" data-desc="Problem — 3 bolded statements" data-md="# Problem
+- **Price** is an important concern for customers booking travel online.
+- **Hotels** leave you disconnected from the city and its culture.
+- **No easy way exists** to book a room with a local or become a host."></div>
+
+<div class="slide" data-slides="airbnb-03.jpg" data-fit="clean" data-id="A3" data-desc="Solution — 1 statement + 3 colored boxes" data-md="# Solution
+A web platform where users can rent out their space to host travelers to:
+- **Save money** when traveling
+- **Make money** when hosting
+- **Share culture** through local connection to the city"></div>
+
+<div class="slide" data-slides="airbnb-04.jpg" data-fit="strain" data-id="A4" data-desc="Market Validation — two giant numbers with sources" data-md="# Market Validation
+- **660,000** total users on Couchsurfing.com
+- **50,000** temporary housing listings/week on Craigslist (07/09–07/16)" data-note="Visual emphasis on big numbers is template-rendering. Markdown encodes 'two stats with labels' — typography is template territory."></div>
+
+<div class="slide" data-slides="airbnb-05.jpg" data-fit="strain" data-id="A5" data-desc="Market Size — 3 differently-sized circles (TAM/SAM/SOM)" data-md="# Market Size
+- **2 Billion+** trips booked worldwide — Total Available Market
+- **560M** budget &amp; online — Serviceable Available Market
+- **84M** trips with AB&amp;B — Share of Market (15% of available)" data-note="'Circle sizes proportional to value' is template-rendering, not content. Same shape as A2/A3."></div>
+
+<div class="slide" data-slides="airbnb-06.jpg" data-fit="forced" data-id="A6" data-desc="Product — 3-step flow + product screenshots" data-md="# Product
+1. Search by city — ![screenshot:search-by-city]
+2. Review listings — ![screenshot:listings]
+3. Book it — ![screenshot:booking]" data-note="Text reduces cleanly. Screenshots need image directives. Without them, you lose evidence-of-existence."></div>
+
+<div class="slide" data-slides="airbnb-07.jpg" data-fit="clean" data-id="A7" data-desc="Business Model — 1 statement + arrow flow ($84M → $25 → $2.1B)" data-md="# Business Model
+We take a 10% commission on each transaction.
+
+- **$84M** trips with AB&amp;B — share of market (15% of available)
+- **$25** average fee — $80/night × 3 nights × 10%
+- **$2.1B** revenue — projected by 2011"></div>
+
+<div class="slide" data-slides="airbnb-08.jpg" data-fit="strain" data-id="A8" data-desc="Adoption Strategy — 3 columns (events / partnerships / craigslist) with heterogeneous content" data-md="# Adoption Strategy
+- **Events** — target events monthly with listing widget
+  - Octoberfest (6M)
+  - Cebit (700,000)
+  - Summerfest (1M)
+  - Eurocup (3M+)
+  - Mardi Gras (800,000)
+- **Partnerships** — cheap / alternative travel
+  - GoLoco
+  - Kayak
+  - Orbitz
+- **Craigslist** — dual posting feature
+  - ![screenshot:craigslist-dual-post]" data-note="Heterogeneous siblings: text list, then logos, then screenshot. Template needs per-slot type tolerance."></div>
+
+<div class="slide" data-slides="airbnb-09.jpg" data-fit="broke" data-id="A9" data-desc="Competition — 2x2 quadrant chart with logos plotted in space" data-md="# Competition
+&gt; Positioning: Affordable × Online vs. Expensive × Offline
+- **Affordable, Online (us)**: AirBed&amp;Breakfast, Hostels.com
+- **Affordable, Offline**: Couchsurfing, Craigslist, BedandBreakfast.com
+- **Expensive, Online**: Rentahome, Orbitz, Hotels.com
+- **Expensive, Offline**: Rentobi, VRBO" data-note="The 2x2 spatial encoding IS the slide's argument — 'we're alone in our quadrant'. Reducing to 4 buckets loses that. Needs a :::quadrant DSL block or detach."></div>
+
+<div class="slide" data-slides="airbnb-10.jpg" data-fit="clean" data-id="A10" data-desc="Competitive Advantages — 6 colored boxes in 2 rows" data-md="# Competitive Advantages
+- **1st to market** — for transaction-based temporary housing site
+- **Host incentive** — they can make money over couchsurfing.com
+- **List once** — hosts post one time vs. daily on Craigslist
+- **Ease of use** — search by price, location &amp; check-in/out dates
+- **Profiles** — browse host profiles, book in 3 clicks
+- **Design &amp; brand** — memorable name, will launch at historic DNC"></div>
+
+<div class="slide" data-slides="airbnb-11.jpg" data-fit="clean" data-id="A11" data-desc="Team — 4 people with photos, role, bio (advisor smaller)" data-md="# Team
+- **Joe Gebbia** — User Interface &amp; PR
+  - Entrepreneur and designer. Holds a patent for CritBuns®. RISD BFA in graphic and industrial design.
+  - ![photo:joe]
+- **Brian Chesky** — Business Development &amp; Brand
+  - Founder of Brian Chesky Inc, industrial design consultant. RISD BFA.
+  - ![photo:brian]
+- **Nathan Blecharcyk** — Developer
+  - Created Facebook apps 'Your neighbors' (75K users), 'Rolodextrous'. Harvard CS, ex-Microsoft, OPNET, Batiq.
+  - ![photo:nate]
+- **Michael Seibel** — Advisor
+  - CEO and co-founder of justin.tv."></div>
+
+<div class="slide" data-slides="airbnb-12.jpg" data-fit="clean" data-id="A12" data-desc="Press — 4 speech-bubble quotes with publication logos" data-md="# Press
+- &gt; 'AirBed &amp; Breakfast is a fun approach to couch surfing.' — Webware
+- &gt; 'Think of it as Craigslist meets Hotels.com, but a lot less creepy.' — Josh Spear
+- &gt; 'A cool alternative to a boring evening in a hotel room.' — Mashable
+- &gt; 'AirBed&apos;s fee-based service could help alleviate concerns about quality.' — Springwise"></div>
+
+<div class="slide" data-slides="airbnb-13.jpg" data-fit="clean" data-id="A13" data-desc="User Testimonials — same shape as Press, with photos instead of logos" data-md="# User Testimonials
+- &gt; 'AirBed&amp;Breakfast freaking rocks!' — Josue F., Washington, DC
+- &gt; 'I found something in my price-range, and that&apos;s what enabled me to come to the conference.' — Jason R., Atlanta, GA
+- &gt; 'A complete success. It is easy to use and it made me money.' — Emily M., Austin, TX
+- &gt; 'It&apos;s about the ideas, the interactions, the people. You don&apos;t get that in a hotel room.' — Dan A., Ontario, Canada" data-note="Identical shape to A12 — exactly the thesis at work. Same template, slightly different content."></div>
+
+<div class="slide" data-slides="airbnb-14.jpg" data-fit="strain" data-id="A14" data-desc="Financial — 1 statement + 3 numbers ($500K / 80K → $2M)" data-md="# Financial
+We are looking for 12 months financing to reach 80,000 transactions on AirBed&amp;Breakfast.
+- **$500K** angel round — initial investment opportunity
+- **80K** trips with AB&amp;B — avg $25 fee
+- **$2M** revenue — over 12 months" data-note="Same shape as A7 (Business Model). The deck reuses this stats-row pattern repeatedly."></div>
+
+<h2 class="section-title">B. UN SDG Report 2025 (8 slides)</h2>
+
+<div class="slide" data-slides="unsdg-02.jpg" data-fit="strain" data-id="B1" data-desc="Foreword by Antonio Guterres — long-form essay with pull-quote" data-md="# Foreword
+
+Ten years since world leaders embraced the transformative 2030 Agenda for Sustainable Development, we have not only the opportunity but the obligation to take stock of progress, acknowledge shortfalls and act with urgency.
+
+Since 2015, millions have gained access to essential services. More than half the world&apos;s population now benefits from some form of social protection, up by 10 percentage points compared to a decade ago.
+
+&gt; Only 35 per cent of SDG targets are on track or making moderate progress. Nearly half are moving too slowly and, alarmingly, 18 per cent are in reverse.
+
+We face a global development emergency.
+
+[... 600 more words ...]
+
+— António Guterres, Secretary-General of the United Nations" data-note="Long-form essay with pull-quote. NOT list-shaped. There's a separate 'essay/letter' template family that sits alongside the nested-list paradigm."></div>
+
+<div class="slide" data-slides="unsdg-03.jpg" data-fit="clean" data-id="B2" data-desc="Introduction — 2-page essay with H2 sub-sections" data-md="# Introduction
+At an inflection point in human history, with five years remaining to achieve the SDGs, this report presents both a frank assessment and a compelling case.
+
+## A decade of learning: progress amid adversity
+- New HIV infections have declined by **40%** since 2010
+- Malaria prevention has averted **2.2B cases** and saved **12.7M lives** since 2000
+- Since 2015, **110M more children and youth** have entered school
+- By 2023, **92%** of the world had access to electricity
+- Internet use grew to **68%** in 2024 from 40% in 2015
+
+## Confronting hard truths
+- 1 in 12 people still experience hunger
+- Women devote 2.5x as many hours per day to unpaid care work as men
+- $4 trillion annual financing gap
+
+## Strategic pathways forward — six SDG transitions
+- Food systems
+- Energy access
+- Digital transformation
+- Education
+- Jobs and social protection
+- Climate and biodiversity action"></div>
+
+<div class="slide" data-slides="unsdg-04.jpg" data-fit="clean" data-id="B3" data-desc="Stark reality of SDG progress — donut chart with 5 progress categories + bar chart by goal" data-md="# Five years to go: the stark reality of SDG progress
+The 2025 progress assessment reveals that the world remains far off track.
+
+Of 169 SDG targets, 139 could be assessed using global trend data:
+- **18%** on track
+- **17%** moderate progress
+- **31%** marginal progress
+- **18%** stagnation
+- **17%** regression
+
+&gt; 48% of targets show insufficient progress. 18% have regressed below 2015 baseline."></div>
+
+<div class="slide" data-slides="unsdg-05.jpg" data-fit="clean" data-id="B4" data-desc="A decade of SDG data progress — text + bar chart by goal" data-md="# A decade of SDG data progress reveals critical gaps
+Significant progress in strengthening data systems for SDG monitoring.
+
+- **2016 baseline:** Only 1/3 of indicators had good data coverage; 39% lacked agreed methodologies
+- **Today:** Almost 70% have good coverage; all 234 indicators have established methodologies
+
+## Strong improvement
+- Goal 3 (Good health) — substantial improvement
+- Goal 6 (Clean water) — substantial improvement
+- Goal 7 (Energy) — highest at 80%+ trend coverage
+- Goal 17 (Partnerships) — substantial improvement
+
+## Persistent gaps (below 30% trend coverage)
+- Goal 5 (Gender equality)
+- Goal 11 (Sustainable cities)
+- Goal 13 (Climate action)
+- Goal 16 (Peace and justice)"></div>
+
+<div class="slide" data-slides="unsdg-06.jpg|unsdg-07.jpg" data-fit="strain" data-id="B5" data-desc="DHS termination impact — 2 charts: indicators-by-goal + impact-level by region (multi-series)" data-md="# Funding fragility undermines global SDG monitoring
+The abrupt termination of USAID funding in February 2025 led to suspension of the Demographic and Health Surveys (DHS), exposing risks of externally-funded data systems.
+
+## Goals most affected by DHS data loss
+- Goal 3 (Good health) — 11 indicators affected
+- Goal 5 (Gender equality) — 6 indicators affected
+- Goal 2 (Zero hunger) — 5 indicators affected
+- Goals 4, 1, 16, 6, 7, 8, 11, 17 — varying impact
+
+## Five most-impacted SDG indicators
+- **5.6.1** Women&apos;s reproductive decisions — 70% of data points from DHS
+- **16.2.3** Sexual violence experienced by youth — 70%
+- **5.3.2** Female genital mutilation — 50%
+- **11.1.1** Urban population in slums — 50%
+- **1.4.1** Households with basic services — 50%" data-note="Strain comes from the chart with regional breakdown (LDCs vs SSA vs World). Multi-series chart needs a typed block (:::chart) alongside the markdown prose."></div>
+
+<div class="slide" data-slides="unsdg-08.jpg" data-fit="clean" data-id="B6" data-desc="Goal 1: No poverty — title + 4 summary bullets + photo + caption" data-md="# Goal 1 — No poverty
+- Extreme poverty persists, affecting 1 in 10 people worldwide. Without acceleration, **8.9% of the global population will still be in extreme poverty by 2030**.
+- For the first time on record, **over half the world&apos;s population** now receives at least one form of social protection benefit. **3.8 billion remain uncovered**.
+- Governments are spending more on education, health and social protection, but emerging economies still **lag advanced economies by ~20 points**.
+- A world without poverty requires urgent action to raise social protection coverage, close spending gaps, and target resources to the most vulnerable.
+
+&gt; ![photo:antananarivo-vegetable-vendors] In Antananarivo, Madagascar, vendors sell vegetables in local markets — a vital lifeline for many in the informal economy."></div>
+
+<div class="slide" data-slides="unsdg-09.jpg" data-fit="clean" data-id="B7" data-desc="Revised poverty estimates — paragraph + line chart 1990–2030" data-md="# Revised poverty estimates show 2030 goal further out of reach
+
+The World Bank revised global poverty estimates in June 2025. The international poverty line was raised from $2.15 (2017 PPP) to $3.00 (2021 PPP).
+
+- Under the new threshold, **1.5 billion people escaped poverty 1990–2022** (vs. 1.3B under old line)
+- In 2025, **808 million people** will be living in extreme poverty — up from previous estimate of 677M
+- That&apos;s **9.9% of the world&apos;s population**, or 1 in 10
+- By 2030, projected to fall to **8.3% (under $2.15 line)** or **7.3% (under $3 line)**
+- More than **3/4 of the global extreme poor** will live in sub-Saharan Africa or fragile/conflict-affected countries
+
+&gt; Eradicating extreme poverty by 2030 appears highly unlikely."></div>
+
+<div class="slide" data-slides="unsdg-10.jpg" data-fit="clean" data-id="B8" data-desc="Goal 2: Zero hunger — same shape as B6 (4 bullets + photo)" data-md="# Goal 2 — Zero hunger
+- Global hunger has declined but **remains above pre-pandemic levels**. In 2024, **8.2%** of population faced hunger; **28% (~2.3B)** were moderately/severely food insecure.
+- Hundreds of millions of children and women are affected by malnutrition. Share of countries with high food prices declined from 60% (2022) to 50% (2023) — but still **3x pre-pandemic norms**.
+- Public agricultural investment is rising — **$701B in 2023** — but the agriculture orientation index continues to fall.
+- Goal 2 requires urgent action to strengthen food systems, support small-scale producers, and address structural drivers of food price volatility.
+
+&gt; ![photo:dollow-school-lunch] A girl enjoys lunch with her friends at Kabasa Primary School in Dollow, Somalia." data-note="Same template as B6 — that's exactly the brand-governance behavior Dex wants. The UN report's 'Goal page' template renders 17 nearly-identical slides."></div>
+
+<h2 class="section-title">C. WEF Global Risks Report 2025 (6 slides)</h2>
+
+<div class="slide" data-slides="wef-004.jpg" data-fit="clean" data-id="C1" data-desc="Preface — long-form essay with author photo + signature" data-md="# Preface
+
+[paragraphs of analysis describing how multi-decade structural forces — technological acceleration, geostrategic shifts, climate change, demographic bifurcation — interact and accentuate a paradigm shift...]
+
+This is the 20th edition of the Global Risks Report. Over the last two decades, **environmental risks have steadily consolidated their position as the greatest source of long-term concern**.
+
+[paragraphs on geopolitics, societal risks, technology...]
+
+The report highlights findings from our annual Global Risks Perception Survey, with insights from over **900 global leaders** across academia, business, government, international organizations and civil society.
+
+— Saadia Zahidi, Managing Director" data-note="Same essay/letter shape as B1. Long-form prose with one pull-quote. Essay template family."></div>
+
+<div class="slide" data-slides="wef-005.jpg" data-fit="clean" data-id="C2" data-desc="Methodology overview — header + intro + 4 numbered components + 2 complementary inputs" data-md="# Overview of methodology
+
+The Global Risks Perception Survey (GRPS) has underpinned the Global Risks Report for two decades. The 2024-2025 GRPS gathered over 900 experts.
+
+&gt; 'Global risk' is the possibility of an event or condition that, if it occurs, would negatively impact a significant proportion of global GDP, population or natural resources.
+
+## GRPS components
+- **Risk landscape** — assess severity over 1-, 2-, and 10-year horizons
+- **Consequences** — consider potential impacts and risk relationships
+- **Risk governance** — reflect on approaches with most potential for action
+- **Outlook** — predict evolution of key aspects of the global risks landscape
+
+## Complementary inputs
+- **Executive Opinion Survey** — 11,000 business leaders in 121 economies
+- **Expert contributions** — 96 experts via meetings, interviews, workshops"></div>
+
+<div class="slide" data-slides="wef-006.jpg" data-fit="clean" data-id="C3" data-desc="Declining optimism — text analysis + Figure A stacked bar (2yr / 10yr outlook)" data-md="# Declining optimism
+
+As we enter 2025, the global outlook is increasingly fractured across geopolitical, environmental, societal, economic and technological domains.
+
+&gt; Optimism is limited as the danger of miscalculation by political and military actors is high.
+
+## 2-year outlook
+- **Stormy**: 5%
+- **Turbulent**: 31%
+- **Unsettled**: 52%
+- **Stable**: 11%
+- **Calm**: 1%
+
+## 10-year outlook (deteriorating)
+- **Stormy**: 17%
+- **Turbulent**: 45%
+- **Unsettled**: 30%
+- **Stable**: 8%
+- **Calm**: &lt;1%"></div>
+
+<div class="slide" data-slides="wef-007.jpg" data-fit="forced" data-id="C4" data-desc="Figure B — horizontal bar chart of 30+ risks ranked, color-coded by category" data-md="# Current Global Risk Landscape (2025)
+&gt; 'Most likely to present a material crisis on a global scale in 2025'
+
+- **State-based armed conflict** (23%) — Geopolitical
+- **Extreme weather events** — Environmental
+- **Geoeconomic confrontation** — Geopolitical
+- **Misinformation and disinformation** — Technological
+- **Societal polarization** — Societal
+- **Economic downturn** — Economic
+- **Critical change to Earth systems** — Environmental
+- **Lack of economic opportunity / unemployment** — Economic
+- **Erosion of human rights / civic freedoms** — Societal
+- **Inequality** — Societal
+- ... [continues to ~30 risks across 5 categories]" data-note="Long ranked list with category tagging. Magnitude (% values) is missing for most items. Needs a 'ranked list with metadata' shape that templates render as bars/dots."></div>
+
+<div class="slide" data-slides="wef-008.jpg" data-fit="clean" data-id="C5" data-desc="Figure C — two parallel ranked lists side-by-side (2-year vs 10-year), color-coded" data-md="# Global risks ranked by severity
+
+## Over 2 years (short term)
+1. Misinformation and disinformation [Tech]
+2. Extreme weather events [Env]
+3. State-based armed conflict [Geo]
+4. Societal polarization [Soc]
+5. Cyber espionage and warfare [Tech]
+6. Pollution [Env]
+7. Inequality [Soc]
+8. Involuntary migration or displacement [Soc]
+9. Geoeconomic confrontation [Geo]
+10. Erosion of human rights / civic freedoms [Soc]
+
+## Over 10 years (long term)
+1. Extreme weather events [Env]
+2. Biodiversity loss and ecosystem collapse [Env]
+3. Critical change to Earth systems [Env]
+4. Natural resource shortages [Env]
+5. Misinformation and disinformation [Tech]
+6. Adverse outcomes of AI technologies [Tech]
+7. Inequality [Soc]
+8. Societal polarization [Soc]
+9. Cyber espionage and warfare [Geo]
+10. Pollution [Env]" data-note="Two parallel ranked lists — exactly what side-by-side comparison templates eat for breakfast."></div>
+
+<div class="slide" data-slides="wef-009.jpg|wef-010.jpg" data-fit="broke" data-id="C6" data-desc="Figure D — risk interconnections network/node graph" data-md="# Global risks landscape: An interconnections map
+
+&gt; Inequality is perceived as the most central risk, playing a significant role in both triggering and being influenced by other risks.
+
+## Central nodes (high connectivity)
+- Inequality
+- Misinformation and disinformation
+- State-based armed conflict
+- Societal polarization
+
+## Visible connections (sample)
+- Inequality ↔ Societal polarization ↔ Erosion of human rights
+- State-based armed conflict ↔ Involuntary migration ↔ Biodiversity loss
+- Misinformation ↔ Censorship and surveillance ↔ Online harms
+- Cyber espionage ↔ Adverse outcomes of AI ↔ Disruptions to critical infrastructure" data-note="Nested lists are trees — they can't express many-to-many relationships. Same trap as the Airbnb 2x2 quadrant. Needs a :::graph directive with explicit node and edge lists."></div>
+
+<h2 class="section-title">D. SDG Sustainable Development Report 2025 (6 slides)</h2>
+
+<div class="slide" data-slides="sdg-003.jpg|sdg-004.jpg" data-fit="clean" data-id="D1" data-desc="Contents — multi-level TOC with page numbers" data-md="# Contents
+
+## Part 1. Financing for Development — p.1
+- Overview — p.1
+- Sustainable development is a high-return activity — p.3
+- The potential of cutting-edge technologies — p.4
+- Reforming the International Financial Architecture — p.4
+- The Action Agenda at FfD4 — p.8
+- Message of Hope in Memory of Pope Francis — p.9
+
+## Part 2. The SDG Index and Dashboards — p.11
+- Status of SDG progress globally — p.11
+- SDG progress by region and country — p.14
+- International spillovers and exposure to supply-chain disruptions — p.20
+- Annex: SDG Dashboard by Regions — p.21
+
+## Part 3. Commitment to the SDGs and UN-Based Multilateralism — p.33
+- [...]" data-note="A TOC is a tree by definition — markdown nails it. Dotted leaders and page-number alignment are template territory."></div>
+
+<div class="slide" data-slides="sdg-006.jpg|sdg-007.jpg" data-fit="clean" data-id="D2" data-desc="Acronyms — 2-page glossary, ~80 entries in columns" data-md="# Acronyms and Abbreviations
+- **ACLED** — Armed Conflict Location and Event Data
+- **AI** — Artificial intelligence
+- **ASEAN** — Association of Southeast Asian Nations
+- **AU** — African Union
+- **BRICS** — Brazil, Russia, India, China, and South Africa
+- **BRICS+** — BRICS + Egypt, Ethiopia, Indonesia, Iran, UAE
+- **COP** — Conference of the Parties
+- **DESA** — UN Department of Economic and Social Affairs
+- [... 70+ more entries ...]"></div>
+
+<div class="slide" data-slides="sdg-008.jpg" data-fit="clean" data-id="D3" data-desc="Executive Summary intro — 1 paragraph" data-md="# Executive Summary
+
+Since 2016, the Sustainable Development Report (SDR) has tracked all UN member states on the SDGs. Eighty years after the creation of the UN system, this year&apos;s edition uses **200,000+ data points** to produce **200+ country and regional SDG profiles**.
+
+This year&apos;s SDR emphasizes eight key messages."></div>
+
+<div class="slide" data-slides="sdg-008.jpg|sdg-009.jpg" data-fit="clean" data-id="D4" data-desc="Eight key messages — 1–4 (numbered, bold lead + body)" data-md="# Eight key messages (1–4)
+
+1. **Global commitment to the SDGs is strong** — 190 of 193 countries have presented national action plans through the VNR process. Only Haiti, Myanmar, and the United States have not.
+2. **East and South Asia has outperformed all regions in SDG progress since 2015**, driven by rapid socioeconomic progress.
+3. **Other rapidly progressing countries** include Benin (SSA), Nepal (E&amp;S Asia), Peru (LATAM), UAE (MENA), Uzbekistan (E.Europe), Costa Rica (OECD), Saudi Arabia (G20).
+4. **European countries top the SDG Index** — Finland #1; 19 of top 20 are European. China entered top 50 (#49); India entered top 100 (#99)."></div>
+
+<div class="slide" data-slides="sdg-009.jpg|sdg-010.jpg" data-fit="clean" data-id="D5" data-desc="Eight key messages — 5–8 (same shape as D4)" data-md="# Eight key messages (5–8)
+
+5. **On average, the SDGs are far off-track.** None of the 17 goals are on course to be achieved by 2030. 17% of targets are on track. Strongest progress: mobile broadband, electricity access, internet use, under-5 mortality.
+6. **Barbados ranks first; United States ranks last** in UN-based multilateralism. In early 2025, the US withdrew from Paris Agreement and WHO and formally opposed the SDGs.
+7. **Lack of fiscal space is the major obstacle** for many developing countries. Roughly half the world&apos;s population lives in countries that cannot adequately invest in sustainable development.
+8. **Sustainable development offers high returns** — capital should flow to emerging economies on more favourable terms. The Global Financial Architecture is broken." data-note="Same shape as D4 — same template. The pair (D4, D5) exemplifies template reuse."></div>
+
+<div class="slide" data-slides="sdg-011.jpg" data-fit="clean" data-id="D6" data-desc="Part 1 opener — chapter title with large numerals" data-md="# Part 1 — Financing for Development" data-note="Template renders this dramatically (full-bleed background, big number '1', etc.). The markdown is just an H1."></div>
+
+<h2 class="section-title">E. Synthetic test corpus — 20 shapes, no titles-only</h2>
+<p style="color: var(--muted); font-size: 13px; margin: -8px 0 16px;">Constructed to vary branching factor, nesting depth, leaf type, content volume, and homogeneity. Left pane: shape signature + ASCII wireframe + likely template. Right pane: markdown source / rendered.</p>
+
+<div class="slide" data-shape="1→2→(4,4) | depth 2 | parallel" data-template="two-col-deep" data-wireframe="┌────────────────────────┐
+│ Title                  │
+├──────────┬─────────────┤
+│ Col A    │ Col B       │
+│ • bullet │ • bullet    │
+│ • bullet │ • bullet    │
+│ • bullet │ • bullet    │
+│ • bullet │ • bullet    │
+└──────────┴─────────────┘" data-fit="clean" data-id="E1" data-desc="Two-column comparison — parallel structure" data-md="# PowerPoint vs Dex
+- **PowerPoint**
+  - Layer-based, absolute positioning
+  - One file per deck, binary format
+  - Theming via masters (often broken)
+  - Fonts and colors drift across slides
+- **Dex**
+  - CSS grid + flexbox, no absolute positioning
+  - Markdown source + JSON state (text)
+  - Semantic design tokens, unbreakable theming
+  - Brand consistency enforced by template library"></div>
+
+<div class="slide" data-shape="1→3 (ordered) | depth 1 | bold-lead+body" data-template="three-step-flow" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├────┬─────┬───────────────┤
+│ 1. │ 2.  │ 3.            │
+│ ▓▓ │ ▓▓  │ ▓▓            │
+└────┴─────┴───────────────┘" data-fit="clean" data-id="E2" data-desc="Three-step workflow — ordered, sequential" data-md="# How Dex turns markdown into slides
+1. **Paginate** — split on H1, H2, and `---` dividers. Each chunk becomes one slide.
+2. **Extract shape** — depth, branching factor, leaf types, content density. The slide&apos;s structural fingerprint.
+3. **Match templates** — score the library against the shape. n perfect matches + m partial matches surfaced; user picks; choice sticks."></div>
+
+<div class="slide" data-shape="1→3→(price,5×bullet) | depth 2 | mixed leaves" data-template="pricing-tiers" data-wireframe="┌─────────────────────────────┐
+│ Title                       │
+├────────┬────────┬───────────┤
+│ Free   │ Pro    │ Enterprise│
+│ $0     │ $29/mo │ Custom    │
+│ ────   │ ────   │ ────      │
+│ ✓ x    │ ✓ x    │ ✓ x       │
+│ ✓ y    │ ✓ y    │ ✓ y       │
+│ ✗ z    │ ✓ z    │ ✓ z       │
+└────────┴────────┴───────────┘" data-fit="clean" data-id="E3" data-desc="Pricing tiers — 3 columns, each price + feature list" data-md="# Plans
+- **Free** — $0 / forever
+  - Up to 5 decks
+  - 50-template starter library
+  - Watermarked exports
+  - Community support
+  - Single user
+- **Pro** — $29 / month
+  - Unlimited decks
+  - Full template library + custom templates
+  - No watermark
+  - Email support
+  - Up to 5 collaborators
+- **Enterprise** — Custom pricing
+  - Everything in Pro
+  - SSO + SCIM
+  - Custom theme + brand kit lock
+  - Dedicated CSM
+  - Audit logs"></div>
+
+<div class="slide" data-shape="1→6 | depth 1 | short bold leaves" data-template="six-card-grid" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────┬──────┬───────────┤
+│  ▓   │  ▓   │  ▓        │
+├──────┼──────┼───────────┤
+│  ▓   │  ▓   │  ▓        │
+└──────┴──────┴───────────┘" data-fit="clean" data-id="E4" data-desc="Six design principles — high branching, short leaves" data-md="# Six principles for our design system
+- **Tokens before pixels** — semantic names beat hex codes
+- **Composition over configuration** — small parts, predictable output
+- **One source of truth** — content lives in markdown, state in JSON
+- **Constraint as feature** — friction in the right places enforces the brand
+- **Templates are contracts** — shape in, layout out, no surprises
+- **Detach is non-destructive** — escape hatch never erases your choices"></div>
+
+<div class="slide" data-shape="1→8 | depth 1 | medium-density leaves" data-template="eight-bullet-stack" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ • ▓▓▓▓▓▓▓▓▓▓             │
+│ • ▓▓▓▓▓▓▓▓               │
+│ • ▓▓▓▓▓▓▓▓▓▓▓            │
+│ • ▓▓▓▓▓▓▓▓▓              │
+│ • ▓▓▓▓▓▓▓▓▓▓▓▓           │
+│ • ▓▓▓▓▓▓                 │
+│ • ▓▓▓▓▓▓▓▓▓              │
+│ • ▓▓▓▓▓▓▓▓▓▓             │
+└──────────────────────────┘" data-fit="clean" data-id="E5" data-desc="Eight findings — single-column, medium-density bullets" data-md="# Eight findings from the user research
+- Authors describe presentations as &apos;writing tasks&apos; until they hit layout — then it becomes a design task they don&apos;t enjoy
+- 73% of corporate users said they spend more time fighting templates than choosing what to say
+- The most common failure mode is colors drifting across slides as people copy-paste from prior decks
+- Finance decks are written in markdown-shaped outlines internally before anyone touches PowerPoint
+- Heads of design view template enforcement as a top-3 unsolved problem
+- Engineers prefer a markdown-first tool by 4:1 over WYSIWYG; designers split evenly
+- Speaker notes are the most-edited and least-shipped piece of every deck
+- Nobody re-uses templates across decks — they re-use the *last* deck and overwrite"></div>
+
+<div class="slide" data-shape="1→4→3 | depth 2 | parallel sub-bullets" data-template="quarterly-roadmap" data-wireframe="┌──────────────────────────────┐
+│ Title                        │
+├──────┬──────┬──────┬─────────┤
+│ Q1   │ Q2   │ Q3   │ Q4      │
+│ • ▓  │ • ▓  │ • ▓  │ • ▓     │
+│ • ▓  │ • ▓  │ • ▓  │ • ▓     │
+│ • ▓  │ • ▓  │ • ▓  │ • ▓     │
+└──────┴──────┴──────┴─────────┘" data-fit="clean" data-id="E6" data-desc="Quarterly roadmap — 4 columns, 3 themes each" data-md="# 2026 roadmap
+- **Q1 — Foundations**
+  - Data model + slot schema spec
+  - Pagination engine ported from Hemingway
+  - 20 seed templates
+- **Q2 — Matcher**
+  - Shape extractor
+  - Ranking algorithm + UI for picker
+  - 50 templates total
+- **Q3 — Authoring**
+  - Markdown editor with live preview
+  - Slash command palette
+  - Detach / re-attach flows
+- **Q4 — Beta**
+  - Multi-user (read-only)
+  - Theme tokens v1
+  - 100 templates, public beta launch"></div>
+
+<div class="slide" data-shape="1→6 (label-value pairs) | depth 1" data-template="persona-card" data-wireframe="┌──────────────────────────┐
+│ Title — Persona name     │
+├─────────────┬────────────┤
+│ Role        │ ▓▓▓        │
+│ Tools       │ ▓▓▓        │
+│ Goals       │ ▓▓▓        │
+│ Pains       │ ▓▓▓        │
+│ Influence   │ ▓▓▓        │
+│ Quote       │ &quot;▓▓▓&quot;       │
+└─────────────┴────────────┘" data-fit="clean" data-id="E7" data-desc="Single persona — 6 attribute pairs" data-md="# Persona — Maya, Head of Design
+- **Role** — Head of Design at a 600-person Series C SaaS company
+- **Tools** — Figma, Notion, Slack, Loom; reluctantly opens PowerPoint twice a year
+- **Goals** — Brand consistency across every customer-facing deck without becoming a slide-fixer for the company
+- **Pains** — Sales decks drifting from brand. Templates ignored. PMs absolute-positioning everything.
+- **Influence** — Sets brand guidelines, owns deck templates, signs off on customer-shown materials
+- **Quote** — &gt; &quot;I shouldn&apos;t need to fix the same gradient on someone&apos;s slide every quarter.&quot;"></div>
+
+<div class="slide" data-shape="1→3→4 | depth 2 | label-value pairs per persona" data-template="three-personas" data-wireframe="┌────────────────────────────┐
+│ Title                      │
+├────────┬────────┬──────────┤
+│ Maya   │ Carlos │ Priya    │
+│ Role:  │ Role:  │ Role:    │
+│ Goal:  │ Goal:  │ Goal:    │
+│ Pain:  │ Pain:  │ Pain:    │
+│ Tool:  │ Tool:  │ Tool:    │
+└────────┴────────┴──────────┘" data-fit="clean" data-id="E8" data-desc="Three personas comparison — parallel sub-attributes" data-md="# Who Dex is for
+- **Maya — Head of Design**
+  - **Role** — Brand owner at a Series C SaaS
+  - **Goal** — Consistent decks across the company
+  - **Pain** — Sales reps overwriting brand colors
+  - **Buys** — Yes, owns the budget
+- **Carlos — Sales engineer**
+  - **Role** — Customer-facing technical seller
+  - **Goal** — Build a custom deck per prospect in &lt;1hr
+  - **Pain** — PowerPoint layout fights eat his prep time
+  - **Buys** — No, but he&apos;s the daily user
+- **Priya — Founding designer at a startup**
+  - **Role** — Solo design team, wears many hats
+  - **Goal** — Pitch decks that look intentional without a full brand system yet
+  - **Pain** — Free templates look free
+  - **Buys** — Yes, but on a personal card"></div>
+
+<div class="slide" data-shape="1→5 (ordered, with magnitudes) | depth 1" data-template="funnel" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ ████████████ 10K (100%)  │
+│  ██████████  8.2K (82%)  │
+│   ███████   5.5K (55%)   │
+│    ████    2.4K (24%)    │
+│     ██     780 (8%)      │
+└──────────────────────────┘" data-fit="strain" data-id="E9" data-desc="Five-stage conversion funnel — magnitudes matter visually" data-md="# Acquisition funnel — last 90 days
+1. **Visited landing page** — 10,000 (100%)
+2. **Clicked &apos;Try free&apos;** — 8,200 (82%)
+3. **Created an account** — 5,500 (55%)
+4. **Created a first deck** — 2,400 (24%)
+5. **Returned in week 2** — 780 (8%)" data-note="Magnitudes are textual but the funnel SHAPE — bars proportional to count — is what makes it land. Same data, but a 'funnel' template uses the % to render shrinking bars."></div>
+
+<div class="slide" data-shape="1→1 (hero) + 1→3 | depth 1 | mixed (stat + bullets)" data-template="big-number-callout" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│       ███████████        │
+│       ███ 87% ███        │
+│       ███████████        │
+├──────────────────────────┤
+│ • supporting bullet      │
+│ • supporting bullet      │
+│ • supporting bullet      │
+└──────────────────────────┘" data-fit="strain" data-id="E10" data-desc="Big-number callout — hero stat + 3 supporting bullets" data-md="# What we learned from the matcher prototype
+
+**87%** of slides matched a template within the top 3 ranked results.
+
+- **Top match was correct** in 64% of cases — user kept the auto-selection
+- **Top-3 contained the user&apos;s pick** in 87% of cases — the panel works
+- **Outside top-3** in 13% of cases — usually heterogeneous content the schema didn&apos;t cover yet" data-note="The hero stat needs typographic emphasis (giant number) — markdown encodes the value and label, template owns the size. Same shape as Airbnb A4."></div>
+
+<div class="slide" data-shape="1→1 (quote) + 1→4 | depth 1 | mixed" data-template="quote-with-reflection" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ &quot; ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ &quot;     │
+│         — author         │
+├──────────────────────────┤
+│ • reflection ▓▓▓▓        │
+│ • reflection ▓▓▓▓        │
+│ • reflection ▓▓▓▓        │
+│ • reflection ▓▓▓▓        │
+└──────────────────────────┘" data-fit="clean" data-id="E11" data-desc="Quote + reflection — pull-quote with 4 follow-up bullets" data-md="# On constraints
+
+&gt; &quot;Limitations are not the obstacles to creativity. They are the conditions of it.&quot;
+&gt; — Adam Phillips
+
+- The blank PowerPoint canvas is the worst-designed creative tool of the last 30 years
+- Brand systems exist precisely because total freedom produces inconsistent output
+- Dex&apos;s template library is the constraint *and* the engine — same thing
+- Detach is the safety valve, not the default. Friction in the right place"></div>
+
+<div class="slide" data-shape="1→4 (Q+A pairs) | depth 1.5 | bold-lead+body" data-template="faq" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ Q ▓▓▓▓▓▓?                │
+│   A ▓▓▓▓▓▓▓▓▓            │
+│ Q ▓▓▓▓▓▓?                │
+│   A ▓▓▓▓▓▓▓▓▓            │
+│ Q ▓▓▓▓▓?                 │
+│   A ▓▓▓▓▓▓▓▓▓▓           │
+│ Q ▓▓▓▓?                  │
+│   A ▓▓▓▓▓▓▓▓             │
+└──────────────────────────┘" data-fit="clean" data-id="E12" data-desc="FAQ — 4 Q&A pairs" data-md="# Frequently asked
+- **Will my markdown lock me into Dex?**
+  - No. The content is plain markdown. The JSON appendix is auxiliary and can be discarded; you keep your prose.
+- **Can I export to PowerPoint?**
+  - No, by design. Web-native layouts (flexbox, grid) don&apos;t translate to PPTX without compromising fidelity or editability. Export would defeat the moat.
+- **Do I need to know how to code?**
+  - No, for authoring. Yes, if you&apos;re an admin authoring custom templates — those are TSX files curated by your design lead.
+- **What about offline use?**
+  - Dex runs in the browser. Local-only mode is on the roadmap; it&apos;s not in v1."></div>
+
+<div class="slide" data-shape="1→1 (def paragraph) + 1→3 (examples) | depth 1 | mixed" data-template="definition-with-examples" data-wireframe="┌──────────────────────────┐
+│ Title — term             │
+├──────────────────────────┤
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓        │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓       │
+├──────────────────────────┤
+│ Examples:                │
+│ • ▓▓▓▓                   │
+│ • ▓▓▓▓                   │
+│ • ▓▓▓▓                   │
+└──────────────────────────┘" data-fit="clean" data-id="E13" data-desc="Definition + examples" data-md="# Slot schema
+
+A **slot schema** is a template&apos;s declaration of what content it accepts: how many children at the root, what shape each child must have, what types of leaves are valid in each slot, and what the density tolerance is.
+
+The matcher compares a slide&apos;s extracted shape signature against every template&apos;s slot schema and ranks fit.
+
+**Examples**
+- A `three-step-flow` schema accepts: `(1 title, 3 ordered children, each with bold-lead + 1-2 sentences)`
+- A `pricing-tiers` schema accepts: `(1 title, 3 children, each with bold-lead + price-string + 3-7 bullet leaves)`
+- A `quote-with-reflection` schema accepts: `(1 title, 1 quote leaf with attribution, 2-6 sibling bullets after the quote)`"></div>
+
+<div class="slide" data-shape="1→2→3→2 | depth 3 | hierarchical" data-template="org-chart-tree" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ ◆ Division               │
+│   ◇ Team                 │
+│     • Role               │
+│     • Role               │
+│   ◇ Team                 │
+│     • Role               │
+│ ◆ Division               │
+│   ◇ Team                 │
+│     • Role               │
+└──────────────────────────┘" data-fit="clean" data-id="E14" data-desc="Org structure 3-deep — division > team > role" data-md="# Engineering org — Q2 snapshot
+- **Platform**
+  - **Infra team** (3)
+    - Lila — staff, leads
+    - Mo — sr, oncall lead
+    - Jin — mid, devex
+  - **Data team** (2)
+    - Ravi — staff, leads
+    - Esme — sr
+- **Product**
+  - **Authoring team** (4)
+    - Tomas — staff, leads
+    - Anya — sr, editor
+    - Mei — sr, matcher
+    - Idris — mid, components
+  - **Templates team** (2)
+    - Niko — sr, leads
+    - Wren — designer-engineer
+  - **Growth team** (3)
+    - Sasha — staff, leads
+    - Dani — sr, fullstack
+    - Kit — mid, frontend"></div>
+
+<div class="slide" data-shape="1→4 (heterogeneous: stat, image, quote, list) | depth 1 | mixed" data-template="mixed-collage" data-wireframe="┌────────────┬─────────────┐
+│ ▓▓ 87% ▓▓  │ [photo]     │
+├────────────┼─────────────┤
+│ &quot;quote ▓▓&quot; │ • bullet    │
+│            │ • bullet    │
+│            │ • bullet    │
+└────────────┴─────────────┘" data-fit="forced" data-id="E15" data-desc="Mixed collage — stat + image + quote + bullets in 4 quadrants" data-md="# Why we&apos;re building this now
+
+- **3.2x** — increase in &apos;deck design&apos; searches on Dribbble since 2020
+- ![photo:figma-rooms-overflow] Photo: every Figma org has a &apos;deck design&apos; project nobody owns
+- &gt; &quot;Our brand kit is a Figma file. Our deck templates are .pptx files. Nobody knows where the truth lives.&quot; — VP Marketing, public SaaS
+- **Three forces converging**
+  - Web-native design tools (Figma, Framer) raised the design floor
+  - Markdown is now lingua franca for content (Notion, Substack, GitHub)
+  - Brand governance is a top-3 priority for design leaders" data-note="Heterogeneous leaves: stat, image directive, quote, sub-list. Template needs per-slot type tolerance. The image directive is what pushes this to FORCED."></div>
+
+<div class="slide" data-shape="1→1 (paragraph) + 1→1 (code) + 1→3 (callouts) | depth 1 | mixed" data-template="code-explainer" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ ▓▓▓▓▓▓▓▓▓▓▓ intro        │
+├──────────────────────────┤
+│ ┌──────────────────────┐ │
+│ │ const fn = ()=&gt; {... │ │
+│ │ }                    │ │
+│ └──────────────────────┘ │
+├──────────────────────────┤
+│ • callout                │
+│ • callout                │
+│ • callout                │
+└──────────────────────────┘" data-fit="clean" data-id="E16" data-desc="Code-focused slide — intro + code block + callouts" data-md="# Template authoring API
+
+Templates are TSX components that declare a slot schema and render slides from a typed payload.
+
+```tsx
+import { defineTemplate } from &apos;@dex/sdk&apos;;
+
+export default defineTemplate({
+  id: &apos;three-step-flow&apos;,
+  schema: {
+    title: { type: &apos;string&apos;, required: true },
+    steps: { type: &apos;list&apos;, count: 3, ordered: true,
+      shape: { lead: &apos;string&apos;, body: &apos;paragraph&apos; } }
+  },
+  render: ({ title, steps }) =&gt; (
+    &lt;Slide&gt;...&lt;/Slide&gt;
+  )
+});
+```
+
+- **Schema is the contract** — the matcher reads only this; never the render fn
+- **Slots are typed** — `string`, `paragraph`, `list`, `image`, `code`, `quote`
+- **Defaults are deterministic** — given the same markdown + library, the same template wins every time"></div>
+
+<div class="slide" data-shape="1→6 (date-prefixed entries) | depth 1" data-template="timeline" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ ●─── 2026 Q1 ▓▓▓         │
+│ │                        │
+│ ●─── 2026 Q2 ▓▓▓         │
+│ │                        │
+│ ●─── 2026 Q3 ▓▓▓         │
+│ │                        │
+│ ●─── 2026 Q4 ▓▓▓         │
+└──────────────────────────┘" data-fit="clean" data-id="E17" data-desc="Timeline — 6 dated milestones, vertical list with date leads" data-md="# Founding milestones (so far)
+- **2026-01** — first Notion doc sketching the thesis
+- **2026-02** — Hemingway sibling project ships pagination engine
+- **2026-03** — landing page goes live, first technical-cofounder conversations
+- **2026-04** — data-model + matcher design lock; 32-slide thesis test passes
+- **2026-05** *(planned)* — first 10 templates + matcher prototype
+- **2026-Q3** *(planned)* — closed beta with 3 design leaders"></div>
+
+<div class="slide" data-shape="1 (center) + 4 (spokes) + each→2 | depth 2 | radial graph" data-template="mind-map (NEEDS DSL)" data-wireframe="┌──────────────────────────┐
+│           Title          │
+│                          │
+│    ◯─────●─────◯         │
+│    │     │     │         │
+│    ◯─────●─────◯         │
+│          │               │
+│    ◯─────●─────◯         │
+│                          │
+└──────────────────────────┘" data-fit="broke" data-id="E18" data-desc="Mind map / radial — central concept with spokes and sub-spokes" data-md="# Markdown is enough — the dependencies
+
+- **Markdown is enough** *(center)*
+  - **Pagination**
+    - Headings + dividers
+    - Zoom in/out
+  - **Mapping**
+    - Tree-shape signature
+    - Slot schemas + scoring
+  - **Authoring**
+    - Editor with live preview
+    - Slash commands as UI
+  - **Theming**
+    - Semantic tokens
+    - No inline styles" data-note="Nested lists fake the radial structure but lose the &apos;everything radiates from one center&apos; visual. A real mind-map renders edges from center to spokes — that&apos;s graph topology, not a tree. Needs a :::mindmap or :::graph DSL block, OR detach to absolute positioning."></div>
+
+<div class="slide" data-shape="1→1 (hero stat) + 1→5 (breakdown stats) | depth 1 | stat-leaves" data-template="stat-with-breakdown" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│      ███ $4.2M ███       │
+│         ARR              │
+├──────────────────────────┤
+│ • $1.6M  Enterprise (38%)│
+│ • $1.4M  Pro     (33%)   │
+│ • $0.7M  Team    (17%)   │
+│ • $0.3M  Free→Pro (7%)   │
+│ • $0.2M  Add-ons  (5%)   │
+└──────────────────────────┘" data-fit="strain" data-id="E19" data-desc="Hero stat + disaggregated breakdown — 1 + 5 stats" data-md="# Q1 revenue
+
+**$4.2M ARR**, up from $2.8M last quarter (+50% QoQ).
+
+- **$1.6M** Enterprise (38%) — 12 logos signed, 4 expansions
+- **$1.4M** Pro tier (33%) — 4,800 paying seats
+- **$0.7M** Team plan (17%) — 290 teams active
+- **$0.3M** Free → Pro upgrades (7%) — 12% conversion in cohort
+- **$0.2M** Add-ons (5%) — primarily SSO and audit-log packs" data-note="Hero stat + breakdown is a recurring shape. Numbers and labels are textual; the visual emphasis (giant hero, smaller breakdowns) is template territory."></div>
+
+<div class="slide" data-shape="1→3 paragraphs + 1→3 list | depth 1 | essay+list" data-template="essay-with-callouts" data-wireframe="┌──────────────────────────┐
+│ Title                    │
+├──────────────────────────┤
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓       │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓        │
+│                          │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓        │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓           │
+│                          │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓           │
+│                          │
+│ Three reasons:           │
+│ • ▓▓▓                    │
+│ • ▓▓▓                    │
+│ • ▓▓▓                    │
+└──────────────────────────┘" data-fit="clean" data-id="E20" data-desc="Long-form essay + supporting list at end" data-md="# On the &apos;all presentations are markdown&apos; thesis
+
+The argument is uncomfortable because it asks people to give up something — the visual canvas — that has felt essential since the 1980s. PowerPoint shipped in 1987 with the implicit claim that ideas are best communicated through arranged shapes. We built three decades of muscle memory around that.
+
+But every well-designed deck I&apos;ve studied — McKinsey reports, exec all-hands, conference keynotes — turns out to be a hierarchical outline first and a layout second. The slide isn&apos;t the unit of thought. The slide is the unit of *presentation*. The unit of thought is the tree.
+
+If that&apos;s true, then the layout is decoration, and the markdown is the artifact.
+
+**Three reasons this matters now:**
+- **Markdown is lingua franca** — Notion, Substack, GitHub, Obsidian have made everyone fluent
+- **Brand governance is unsolved** — every Head of Design I&apos;ve talked to ranks it top-three
+- **Web-native layouts have caught up** — flexbox and grid finally render slides as well as PowerPoint, with none of the rigidity"></div>
+
+</main>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach(s => {
+    const fit = s.dataset.fit;
+    const id = s.dataset.id;
+    const desc = s.dataset.desc;
+    const md = s.dataset.md;
+    const note = s.dataset.note || '';
+    const isSynthetic = !!s.dataset.shape;
+
+    const fitLabel = { clean: 'clean', strain: 'strained', forced: 'forced', broke: 'broke' }[fit];
+
+    let leftPane;
+    if (isSynthetic) {
+      const shape = s.dataset.shape;
+      const tpl = s.dataset.template;
+      const wf = s.dataset.wireframe || '';
+      leftPane = `
+        <div class="pane shape">
+          <h4>Shape signature</h4>
+          <dl class="meta">
+            <dt>Tree</dt><dd>${shape}</dd>
+            <dt>Template</dt><dd>${tpl}</dd>
+          </dl>
+          ${wf ? `<pre class="wireframe">${wf.replace(/</g, '&lt;')}</pre>` : ''}
+          <p class="ana">Real-world analog: ${desc.replace(/^[^—]*— /, '')}</p>
+        </div>`;
+    } else {
+      const imgs = s.dataset.slides.split('|');
+      leftPane = `
+        <div class="pane original">
+          <div class="multi">${imgs.map(i => `<img src="${(window.SLIDES && window.SLIDES[i]) || `slides/${i}`}" alt="${id} original" loading="lazy">`).join('')}</div>
+        </div>`;
+    }
+
+    s.innerHTML = `
+      <div class="slide-header">
+        <span class="id">${id}</span>
+        <span class="desc">${desc}</span>
+        <span class="badge ${fit}">${fitLabel}</span>
+      </div>
+      <div class="body">
+        ${leftPane}
+        <div class="pane markdown">
+          <div class="tabs">
+            <span class="tab active" data-view="src">source</span>
+            <span class="tab" data-view="rendered">rendered</span>
+          </div>
+          <pre class="src">${md.replace(/</g, '&lt;')}</pre>
+          <div class="rendered-wrap"><div class="rendered">${marked.parse(md)}</div></div>
+          ${note ? `<div class="note">${note}</div>` : ''}
+        </div>
+      </div>
+    `;
+
+    // Tab toggle
+    const tabs = s.querySelectorAll('.tab');
+    const src = s.querySelector('pre.src');
+    const renderedWrap = s.querySelector('.rendered-wrap');
+    tabs.forEach(t => {
+      t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        if (t.dataset.view === 'src') {
+          src.style.display = 'block';
+          renderedWrap.classList.remove('show');
+        } else {
+          src.style.display = 'none';
+          renderedWrap.classList.add('show');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

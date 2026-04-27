@@ -2,7 +2,17 @@
 
 A headless presentation tool. Markdown in, slides out.
 
-![Dex editor — mdex on the left, rendered slide on the right, ranked template matches in the sidebar](docs/screenshot.png)
+**Editor** — mdex on the left, rendered slide on the right, ranked template matches in the sidebar.
+
+![Dex editor](docs/screenshot-editor.png)
+
+**Template gallery** — every template rendered with its canonical sample so you can scan the library at a glance.
+
+![Template gallery](docs/screenshot-templates.png)
+
+**Test bench** — 54 real-world and synthetic slides side-by-side with their nested-list mdex, color-coded by fit (clean / strained / forced / broke). The thesis test that motivated the architecture.
+
+![Thesis test bench](docs/screenshot-test.png)
 
 ## Thesis
 
@@ -47,6 +57,7 @@ Opens on `http://localhost:5173`. Routes:
 
 - `/` — editor: sidebar template picker, resizable mdex pane, live slide preview
 - `/templates` — gallery of all 20 templates rendered with their canonical samples
+- `/test` — thesis test bench: 54 slides (34 scraped from real public decks + 20 synthetic shapes) shown side-by-side with their nested-list markdown
 
 ## Project structure
 

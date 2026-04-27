@@ -62,6 +62,17 @@ export function NavHeader({ rightSlot }: { rightSlot?: React.ReactNode }) {
                     >
                         Templates
                     </NavLink>
+                    <NavLink
+                        to="/test"
+                        className={({ isActive }) =>
+                            "rounded-md px-2.5 py-1 text-sm font-medium transition " +
+                            (isActive
+                                ? "bg-secondary text-primary"
+                                : "text-tertiary hover:text-primary")
+                        }
+                    >
+                        Test
+                    </NavLink>
                 </nav>
             </div>
             <div className="flex items-center gap-4 text-xs text-tertiary">
