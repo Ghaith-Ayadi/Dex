@@ -53,7 +53,7 @@ npm install
 npm run dev
 ```
 
-Opens on `http://localhost:5173`. Routes:
+Opens on `http://localhost:6173`. Routes:
 
 - `/` — editor: sidebar template picker, resizable mdex pane, live slide preview
 - `/templates` — gallery of all 20 templates rendered with their canonical samples

@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { NavHeader } from "@/components/nav/header";
 import { SplitPane } from "@/components/split-pane/split-pane";
 import { FormRenderer } from "@/forms/form-renderer";
-import { defaultItemFor, findListField, getAtPath, listInsert } from "@/forms/schema";
+import { defaultItemFor, findListField, firstInputPathFor, getAtPath, listInsert } from "@/forms/schema";
 import { SCHEMAS } from "@/forms/schemas";
 import { TEMPLATES } from "@/templates";
 import { ScaledSlide } from "@/templates/_primitives";
@@ -53,8 +53,9 @@ export const HomeScreen = () => {
     const Component = selected.component;
 
     /* Handler injected into the rendered template so its <AddGhostSlot> can
-     * trigger an item insert at the corresponding form path. Resolves the
-     * list field from the schema, builds a default item, and respects max. */
+     * trigger an item insert at the corresponding form path. After insert,
+     * focuses the first input of the new item and selects its placeholder
+     * text so the user can replace it with the first keystroke. */
     const handleAddItem = useCallback(
         (path: string) => {
             if (!schema) return;
@@ -62,25 +63,63 @@ export const HomeScreen = () => {
             if (!field) return;
             const list = (getAtPath(formProps, path) as unknown[]) ?? [];
             if (list.length >= field.max) return;
+            const newIndex = list.length;
             const item = defaultItemFor(field);
             setFormProps((prev) => listInsert(prev, path, item));
+
+            /* Wait for React to commit the new field, then focus + select. */
+            const focusPath = firstInputPathFor(field, path, newIndex);
+            if (!focusPath) return;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const root = formContainerRef.current;
+                    if (!root) return;
+                    const input = root.querySelector<HTMLElement>(`[data-form-path="${CSS.escape(focusPath)}"]`);
+                    if (!input) return;
+                    input.scrollIntoView({ behavior: "smooth", block: "center" });
+                    if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+                        input.focus();
+                        input.select();
+                    } else {
+                        input.focus();
+                    }
+                });
+            });
         },
         [schema, formProps],
     );
 
-    /* Click in preview → focus the matching form input + scroll into view. */
+    /* Click (or drag-select) in preview → focus matching form input,
+     * scroll into view, and select the matching substring inside the input.
+     * If the user dragged to highlight a substring (e.g. just "title" out of
+     * "my awesome slide title"), use that substring instead of the full text
+     * of the clicked element. */
     const formContainerRef = useRef<HTMLDivElement>(null);
     const handlePreviewClick = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
-            let el = e.target as HTMLElement | null;
             let text = "";
-            while (el && el !== e.currentTarget) {
-                const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
-                if (t && t.length <= 200) {
-                    text = t;
-                    break;
+
+            const sel = typeof window !== "undefined" ? window.getSelection() : null;
+            if (sel && sel.rangeCount > 0) {
+                const selectedText = sel.toString().replace(/\s+/g, " ").trim();
+                if (selectedText) {
+                    const range = sel.getRangeAt(0);
+                    if (e.currentTarget.contains(range.commonAncestorContainer)) {
+                        text = selectedText;
+                    }
                 }
-                el = el.parentElement;
+            }
+
+            if (!text) {
+                let el = e.target as HTMLElement | null;
+                while (el && el !== e.currentTarget) {
+                    const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+                    if (t && t.length <= 200) {
+                        text = t;
+                        break;
+                    }
+                    el = el.parentElement;
+                }
             }
             if (!text) return;
 

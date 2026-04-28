@@ -109,6 +109,17 @@ export function listRemove<T>(obj: T, path: string, index: number): T {
     return setAtPath(obj, path, next);
 }
 
+/* Sensible visible-default for a new field. Uses the schema's placeholder if
+ * present, else the label. Real text on purpose: items added via the preview
+ * ghost-add are rendered into the slide immediately, and the editor selects
+ * the first input so the user can replace it with their first keystroke. */
+function placeholderText(f: FieldSchema): string {
+    if (f.kind === "text" || f.kind === "textarea") {
+        return f.placeholder?.trim() || f.label;
+    }
+    return "";
+}
+
 /* Build a sensible default for one new list item, given the list's schema. */
 export function defaultItemFor(field: ListField): unknown {
     if (field.defaultItem) return field.defaultItem();
@@ -118,19 +129,35 @@ export function defaultItemFor(field: ListField): unknown {
         field.itemFields[0].kind !== "list" &&
         field.itemFields[0].key === "$self"
     ) {
-        const k = field.itemFields[0].kind;
-        if (k === "toggle") return false;
-        return "";
+        const sub = field.itemFields[0];
+        if (sub.kind === "toggle") return false;
+        return placeholderText(sub) || field.itemLabel;
     }
     const obj: Record<string, unknown> = {};
     for (const f of field.itemFields) {
         if (f.key === "$self") continue;
-        if (f.kind === "text" || f.kind === "textarea" || f.kind === "select") obj[f.key] = "";
+        if (f.kind === "text" || f.kind === "textarea") obj[f.key] = placeholderText(f);
+        else if (f.kind === "select") obj[f.key] = "";
         else if (f.kind === "toggle") obj[f.key] = false;
         else if (f.kind === "list") obj[f.key] = [];
         else if (f.kind === "group") obj[f.key] = {};
     }
     return obj;
+}
+
+/* The path to focus on after a list-insert: first focusable leaf inside
+ * the newly added item. Returns null if the list has no usable inputs. */
+export function firstInputPathFor(field: ListField, basePath: string, newIndex: number): string | null {
+    /* Lists of primitives: the item itself is the input. */
+    if (field.itemFields.length === 1 && field.itemFields[0].key === "$self") {
+        return `${basePath}.${newIndex}`;
+    }
+    for (const f of field.itemFields) {
+        if (f.kind === "text" || f.kind === "textarea" || f.kind === "select") {
+            return `${basePath}.${newIndex}.${f.key}`;
+        }
+    }
+    return null;
 }
 
 /* Walk a TemplateSchema to find the ListField at a given dotted path
