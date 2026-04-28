@@ -1,12 +1,13 @@
-import { Slide, Kicker } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker } from "../_primitives";
 
 export type ParagraphEssayProps = {
     kicker?: string;
     title: string;
     paragraphs: string[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function ParagraphEssay({ kicker, title, paragraphs }: ParagraphEssayProps) {
+export default function ParagraphEssay({ kicker, title, paragraphs, _onAdd }: ParagraphEssayProps) {
     return (
         <Slide>
             <div className="flex max-w-4xl flex-col gap-8">
@@ -19,7 +20,7 @@ export default function ParagraphEssay({ kicker, title, paragraphs }: ParagraphE
                 <h1 className="text-display-md font-semibold tracking-[-0.02em] text-primary leading-[1.05]">
                     {title}
                 </h1>
-                <div className="mt-2 flex flex-col gap-5 max-w-3xl">
+                <div className="group/ghost mt-2 flex flex-col gap-5 max-w-3xl">
                     {paragraphs.map((p, i) => (
                         <p
                             key={i}
@@ -31,6 +32,7 @@ export default function ParagraphEssay({ kicker, title, paragraphs }: ParagraphE
                             {p}
                         </p>
                     ))}
+                    <AddGhostSlot path="paragraphs" onAdd={_onAdd} className="h-16" />
                 </div>
             </div>
         </Slide>

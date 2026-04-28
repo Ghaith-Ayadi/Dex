@@ -1,4 +1,4 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type TeamMember = {
     name: string;
@@ -11,6 +11,7 @@ export type TeamGridProps = {
     kicker?: string;
     title: string;
     members: TeamMember[];
+    _onAdd?: (path: string) => void;
 };
 
 function makeInitials(name: string): string {
@@ -20,7 +21,7 @@ function makeInitials(name: string): string {
 
 const AVATAR_BG = ["bg-brand-primary", "bg-secondary", "bg-tertiary"];
 
-export default function TeamGrid({ kicker, title, members }: TeamGridProps) {
+export default function TeamGrid({ kicker, title, members, _onAdd }: TeamGridProps) {
     const cols = members.length <= 3 ? members.length : members.length === 4 ? 2 : 4;
     return (
         <Slide>
@@ -29,7 +30,7 @@ export default function TeamGrid({ kicker, title, members }: TeamGridProps) {
                 <Title size="md">{title}</Title>
             </div>
             <div
-                className="mt-10 grid flex-1 gap-6 content-start"
+                className="group/ghost mt-10 grid flex-1 gap-6 content-start"
                 style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
             >
                 {members.map((m, i) => (
@@ -49,6 +50,7 @@ export default function TeamGrid({ kicker, title, members }: TeamGridProps) {
                         {m.bio && <p className="text-sm leading-relaxed text-tertiary">{m.bio}</p>}
                     </div>
                 ))}
+                <AddGhostSlot path="members" onAdd={_onAdd} className="min-h-[180px]" />
             </div>
         </Slide>
     );

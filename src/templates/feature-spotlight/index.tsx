@@ -1,6 +1,6 @@
 import { Cube01, LayersThree01, Lightning01 } from "@untitledui/icons";
 import type { FC, SVGProps } from "react";
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type FeatureSpotlightProps = {
     kicker?: string;
@@ -11,9 +11,10 @@ export type FeatureSpotlightProps = {
         body: string;
     };
     secondary: { heading: string; body: string }[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function FeatureSpotlight({ kicker, title, feature, secondary }: FeatureSpotlightProps) {
+export default function FeatureSpotlight({ kicker, title, feature, secondary, _onAdd }: FeatureSpotlightProps) {
     const Icon = feature.icon ?? Cube01;
     return (
         <Slide>
@@ -29,13 +30,14 @@ export default function FeatureSpotlight({ kicker, title, feature, secondary }: 
                     <h3 className="text-display-xs font-semibold tracking-tight text-primary">{feature.heading}</h3>
                     <p className="text-md leading-relaxed text-tertiary">{feature.body}</p>
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="group/ghost flex flex-col gap-4">
                     {secondary.map((s, i) => (
                         <div key={i} className="flex flex-col gap-1.5 border-l-2 border-brand pl-4 py-1">
                             <h4 className="text-sm font-semibold text-primary">{s.heading}</h4>
                             <p className="text-sm leading-relaxed text-tertiary">{s.body}</p>
                         </div>
                     ))}
+                    <AddGhostSlot path="secondary" onAdd={_onAdd} className="h-14" />
                 </div>
             </div>
         </Slide>

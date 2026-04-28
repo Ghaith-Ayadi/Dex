@@ -1,5 +1,5 @@
 import { Check } from "@untitledui/icons";
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type PricingTier = {
     name: string;
@@ -15,9 +15,10 @@ export type PricingTiersProps = {
     kicker?: string;
     title: string;
     tiers: PricingTier[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function PricingTiers({ kicker, title, tiers }: PricingTiersProps) {
+export default function PricingTiers({ kicker, title, tiers, _onAdd }: PricingTiersProps) {
     return (
         <Slide>
             <div className="flex max-w-3xl flex-col gap-4">
@@ -25,8 +26,8 @@ export default function PricingTiers({ kicker, title, tiers }: PricingTiersProps
                 <Title size="md">{title}</Title>
             </div>
             <div
-                className="mt-10 grid flex-1 gap-4 content-stretch"
-                style={{ gridTemplateColumns: `repeat(${tiers.length}, minmax(0, 1fr))` }}
+                className="group/ghost mt-10 grid flex-1 gap-4 content-stretch"
+                style={{ gridTemplateColumns: `repeat(${tiers.length + 1}, minmax(0, 1fr))` }}
             >
                 {tiers.map((tier, i) => (
                     <div
@@ -70,6 +71,7 @@ export default function PricingTiers({ kicker, title, tiers }: PricingTiersProps
                         </ul>
                     </div>
                 ))}
+                <AddGhostSlot path="tiers" onAdd={_onAdd} />
             </div>
         </Slide>
     );

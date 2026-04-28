@@ -65,7 +65,7 @@ export function SplitPane({
 
     return (
         <div ref={containerRef} className={cx("flex h-full w-full", className)}>
-            <div style={{ width: `${split}%` }} className="min-w-0 overflow-hidden">
+            <div style={{ width: `${split}%` }} className="min-w-0 min-h-0 h-full overflow-hidden">
                 {left}
             </div>
             <div
@@ -79,7 +79,7 @@ export function SplitPane({
             >
                 <div className="absolute inset-y-0 -inset-x-1.5" />
             </div>
-            <div style={{ width: `${100 - split}%` }} className="min-w-0 overflow-hidden">
+            <div style={{ width: `${100 - split}%` }} className="min-w-0 min-h-0 h-full overflow-hidden">
                 {right}
             </div>
         </div>

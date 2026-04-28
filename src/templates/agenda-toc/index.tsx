@@ -1,20 +1,21 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type AgendaTocProps = {
     kicker?: string;
     title: string;
     items: { title: string; description?: string }[];
     activeIndex?: number;
+    _onAdd?: (path: string) => void;
 };
 
-export default function AgendaToc({ kicker, title, items, activeIndex }: AgendaTocProps) {
+export default function AgendaToc({ kicker, title, items, activeIndex, _onAdd }: AgendaTocProps) {
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
                 {kicker && <Kicker>{kicker}</Kicker>}
                 <Title size="md">{title}</Title>
             </div>
-            <ol className="mt-10 flex flex-1 flex-col">
+            <ol className="group/ghost mt-10 flex flex-1 flex-col">
                 {items.map((item, i) => {
                     const isActive = activeIndex === i;
                     return (
@@ -54,6 +55,9 @@ export default function AgendaToc({ kicker, title, items, activeIndex }: AgendaT
                         </li>
                     );
                 })}
+                <li className="contents">
+                    <AddGhostSlot path="items" onAdd={_onAdd} className="mt-2 h-14" />
+                </li>
             </ol>
         </Slide>
     );

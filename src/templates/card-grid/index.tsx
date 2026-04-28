@@ -1,6 +1,6 @@
 import { Stars01, LayersThree01, Zap, Globe04, Lightning01, Target01, Cube01, Stars02 } from "@untitledui/icons";
 import type { FC, SVGProps } from "react";
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 const FALLBACK_ICONS: FC<SVGProps<SVGSVGElement>>[] = [Stars01, LayersThree01, Zap, Globe04, Lightning01, Target01, Cube01, Stars02];
 
@@ -15,9 +15,10 @@ export type CardGridProps = {
     title: string;
     subtitle?: string;
     cards: CardGridCard[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function CardGrid({ kicker, title, subtitle, cards }: CardGridProps) {
+export default function CardGrid({ kicker, title, subtitle, cards, _onAdd }: CardGridProps) {
     const colCount = cards.length <= 2 ? 2 : cards.length === 4 ? 2 : 3;
     return (
         <Slide>
@@ -29,7 +30,7 @@ export default function CardGrid({ kicker, title, subtitle, cards }: CardGridPro
                 )}
             </div>
             <div
-                className="mt-12 grid flex-1 gap-5 content-start"
+                className="group/ghost mt-12 grid flex-1 gap-5 content-start"
                 style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
             >
                 {cards.map((card, i) => {
@@ -37,7 +38,7 @@ export default function CardGrid({ kicker, title, subtitle, cards }: CardGridPro
                     return (
                         <div
                             key={i}
-                            className="group flex flex-col gap-4 rounded-2xl border border-secondary bg-primary p-6 transition hover:border-primary"
+                            className="flex flex-col gap-4 rounded-2xl border border-secondary bg-primary p-6 transition hover:border-primary"
                         >
                             <div className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-primary">
                                 <Icon className="size-5 text-brand-secondary" aria-hidden />
@@ -47,6 +48,7 @@ export default function CardGrid({ kicker, title, subtitle, cards }: CardGridPro
                         </div>
                     );
                 })}
+                <AddGhostSlot path="cards" onAdd={_onAdd} className="min-h-[180px]" />
             </div>
         </Slide>
     );

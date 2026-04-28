@@ -1,5 +1,5 @@
 import { TrendUp01 } from "@untitledui/icons";
-import { Slide, Kicker, Body } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Body } from "../_primitives";
 
 export type StatHeroProps = {
     kicker?: string;
@@ -8,9 +8,10 @@ export type StatHeroProps = {
     heroNote?: string;
     trend?: { delta: string; label?: string };
     supporting?: { value: string; label: string }[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function StatHero({ kicker, heroValue, heroLabel, heroNote, trend, supporting }: StatHeroProps) {
+export default function StatHero({ kicker, heroValue, heroLabel, heroNote, trend, supporting, _onAdd }: StatHeroProps) {
     return (
         <Slide>
             {kicker && <Kicker className="mb-6">{kicker}</Kicker>}
@@ -29,9 +30,9 @@ export default function StatHero({ kicker, heroValue, heroLabel, heroNote, trend
                 <div className="mt-4 text-2xl font-medium text-secondary">{heroLabel}</div>
                 {heroNote && <Body className="mt-3 max-w-2xl text-lg">{heroNote}</Body>}
             </div>
-            {supporting && supporting.length > 0 && (
-                <div className="mt-6 grid grid-cols-3 gap-10 border-t border-secondary pt-8">
-                    {supporting.map((s, i) => (
+            {(supporting?.length ?? 0) > 0 || _onAdd ? (
+                <div className="group/ghost mt-6 grid grid-cols-4 gap-10 border-t border-secondary pt-8">
+                    {(supporting ?? []).map((s, i) => (
                         <div key={i} className="flex flex-col gap-1.5">
                             <span className="text-display-xs font-semibold tracking-tight text-primary tabular-nums">
                                 {s.value}
@@ -39,8 +40,9 @@ export default function StatHero({ kicker, heroValue, heroLabel, heroNote, trend
                             <span className="text-sm font-medium text-tertiary">{s.label}</span>
                         </div>
                     ))}
+                    <AddGhostSlot path="supporting" onAdd={_onAdd} className="min-h-[80px]" />
                 </div>
-            )}
+            ) : null}
         </Slide>
     );
 }

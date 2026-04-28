@@ -29,5 +29,4 @@ dist-ssr
 experiment-decks/*.pdf
 experiment-decks/slides/
 experiment-decks/slides-data.js
-public/test-bench/slides-data.js
 .vercel

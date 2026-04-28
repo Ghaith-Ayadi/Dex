@@ -1,4 +1,4 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type TimelineEvent = {
     date: string;
@@ -11,16 +11,17 @@ export type TimelineVerticalProps = {
     kicker?: string;
     title: string;
     events: TimelineEvent[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function TimelineVertical({ kicker, title, events }: TimelineVerticalProps) {
+export default function TimelineVertical({ kicker, title, events, _onAdd }: TimelineVerticalProps) {
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
                 {kicker && <Kicker>{kicker}</Kicker>}
                 <Title size="md">{title}</Title>
             </div>
-            <div className="mt-10 flex flex-1 flex-col">
+            <div className="group/ghost mt-10 flex flex-1 flex-col">
                 {events.map((event, i) => (
                     <div key={i} className="grid grid-cols-[140px_28px_1fr] items-start gap-5">
                         <div className="pt-1 text-right">
@@ -52,6 +53,7 @@ export default function TimelineVertical({ kicker, title, events }: TimelineVert
                         </div>
                     </div>
                 ))}
+                <AddGhostSlot path="events" onAdd={_onAdd} className="ml-[124px] mt-2 h-16" />
             </div>
         </Slide>
     );

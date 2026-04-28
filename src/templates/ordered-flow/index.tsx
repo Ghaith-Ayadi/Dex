@@ -1,4 +1,4 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type OrderedFlowStep = {
     lead: string;
@@ -9,9 +9,10 @@ export type OrderedFlowProps = {
     kicker?: string;
     title: string;
     steps: OrderedFlowStep[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function OrderedFlow({ kicker, title, steps }: OrderedFlowProps) {
+export default function OrderedFlow({ kicker, title, steps, _onAdd }: OrderedFlowProps) {
     const cols = Math.min(steps.length, 4);
     return (
         <Slide>
@@ -20,7 +21,7 @@ export default function OrderedFlow({ kicker, title, steps }: OrderedFlowProps) 
                 <Title size="md">{title}</Title>
             </div>
             <div
-                className="mt-12 grid flex-1 gap-6 content-start"
+                className="group/ghost mt-12 grid flex-1 gap-6 content-start"
                 style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
             >
                 {steps.map((step, i) => (
@@ -37,6 +38,7 @@ export default function OrderedFlow({ kicker, title, steps }: OrderedFlowProps) 
                         <p className="text-sm leading-relaxed text-tertiary">{step.body}</p>
                     </div>
                 ))}
+                <AddGhostSlot path="steps" onAdd={_onAdd} className="min-h-[140px]" />
             </div>
         </Slide>
     );

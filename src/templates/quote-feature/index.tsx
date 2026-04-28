@@ -1,12 +1,13 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
 
 export type QuoteFeatureProps = {
     kicker?: string;
     title?: string;
     quotes: { text: string; author: string; role?: string }[];
+    _onAdd?: (path: string) => void;
 };
 
-export default function QuoteFeature({ kicker, title, quotes }: QuoteFeatureProps) {
+export default function QuoteFeature({ kicker, title, quotes, _onAdd }: QuoteFeatureProps) {
     const cols = quotes.length === 1 ? 1 : 2;
     return (
         <Slide>
@@ -15,7 +16,7 @@ export default function QuoteFeature({ kicker, title, quotes }: QuoteFeatureProp
                 {title && <Title size="md">{title}</Title>}
             </div>
             <div
-                className="mt-10 grid flex-1 gap-5 content-start"
+                className="group/ghost mt-10 grid flex-1 gap-5 content-start"
                 style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
             >
                 {quotes.map((q, i) => (
@@ -35,6 +36,7 @@ export default function QuoteFeature({ kicker, title, quotes }: QuoteFeatureProp
                         </figcaption>
                     </figure>
                 ))}
+                <AddGhostSlot path="quotes" onAdd={_onAdd} className="min-h-[180px]" />
             </div>
         </Slide>
     );
