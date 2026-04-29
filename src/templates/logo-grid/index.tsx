@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type LogoGridProps = {
     kicker?: string;
@@ -12,8 +12,8 @@ export default function LogoGrid({ kicker, title, logos, _onAdd }: LogoGridProps
     return (
         <Slide>
             <div className="flex max-w-3xl flex-col gap-4">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div
                 className="group/ghost mt-12 grid flex-1 gap-px content-center overflow-hidden rounded-2xl border border-secondary bg-border-secondary"
@@ -24,9 +24,11 @@ export default function LogoGrid({ kicker, title, logos, _onAdd }: LogoGridProps
                         key={i}
                         className="flex items-center justify-center bg-primary py-12 px-6 transition hover:bg-secondary/30"
                     >
-                        <span className="text-2xl font-semibold tracking-[-0.02em] text-quaternary">
-                            {logo}
-                        </span>
+                        <Trace path={`logos.${i}`}>
+                            <span className="text-2xl font-semibold tracking-[-0.02em] text-quaternary">
+                                {logo}
+                            </span>
+                        </Trace>
                     </div>
                 ))}
                 <AddGhostSlot path="logos" onAdd={_onAdd} className="min-h-[100px] rounded-none border-0 bg-primary" />

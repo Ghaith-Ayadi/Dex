@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Trace } from "../_primitives";
 
 export type ParagraphEssayProps = {
     kicker?: string;
@@ -14,23 +14,28 @@ export default function ParagraphEssay({ kicker, title, paragraphs, _onAdd }: Pa
                 {kicker && (
                     <div className="flex items-center gap-3">
                         <span className="h-px w-8 bg-brand-solid" />
-                        <Kicker>{kicker}</Kicker>
+                        <Trace path="kicker">
+                            <Kicker>{kicker}</Kicker>
+                        </Trace>
                     </div>
                 )}
-                <h1 className="text-display-md font-semibold tracking-[-0.02em] text-primary leading-[1.05]">
-                    {title}
-                </h1>
+                <Trace path="title">
+                    <h1 className="text-display-md font-semibold tracking-[-0.02em] text-primary leading-[1.05]">
+                        {title}
+                    </h1>
+                </Trace>
                 <div className="group/ghost mt-2 flex flex-col gap-5 max-w-3xl">
                     {paragraphs.map((p, i) => (
-                        <p
-                            key={i}
-                            className={
-                                "text-lg leading-relaxed " +
-                                (i === 0 ? "text-secondary" : "text-tertiary")
-                            }
-                        >
-                            {p}
-                        </p>
+                        <Trace key={i} path={`paragraphs.${i}`}>
+                            <p
+                                className={
+                                    "text-lg leading-relaxed " +
+                                    (i === 0 ? "text-secondary" : "text-tertiary")
+                                }
+                            >
+                                {p}
+                            </p>
+                        </Trace>
                     ))}
                     <AddGhostSlot path="paragraphs" onAdd={_onAdd} className="h-16" />
                 </div>

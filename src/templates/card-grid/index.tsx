@@ -1,6 +1,6 @@
 import { Stars01, LayersThree01, Zap, Globe04, Lightning01, Target01, Cube01, Stars02 } from "@untitledui/icons";
 import type { FC, SVGProps } from "react";
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 const FALLBACK_ICONS: FC<SVGProps<SVGSVGElement>>[] = [Stars01, LayersThree01, Zap, Globe04, Lightning01, Target01, Cube01, Stars02];
 
@@ -23,10 +23,12 @@ export default function CardGrid({ kicker, title, subtitle, cards, _onAdd }: Car
     return (
         <Slide>
             <div className="flex max-w-3xl flex-col gap-5">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
                 {subtitle && (
-                    <p className="text-lg leading-relaxed text-tertiary max-w-2xl">{subtitle}</p>
+                    <Trace path="subtitle">
+                        <p className="text-lg leading-relaxed text-tertiary max-w-2xl">{subtitle}</p>
+                    </Trace>
                 )}
             </div>
             <div
@@ -43,8 +45,12 @@ export default function CardGrid({ kicker, title, subtitle, cards, _onAdd }: Car
                             <div className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-primary">
                                 <Icon className="size-5 text-brand-secondary" aria-hidden />
                             </div>
-                            <h3 className="text-lg font-semibold tracking-tight text-primary">{card.heading}</h3>
-                            <p className="text-sm leading-relaxed text-tertiary">{card.body}</p>
+                            <Trace path={`cards.${i}.heading`}>
+                                <h3 className="text-lg font-semibold tracking-tight text-primary">{card.heading}</h3>
+                            </Trace>
+                            <Trace path={`cards.${i}.body`}>
+                                <p className="text-sm leading-relaxed text-tertiary">{card.body}</p>
+                            </Trace>
                         </div>
                     );
                 })}

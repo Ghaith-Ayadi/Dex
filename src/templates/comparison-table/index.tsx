@@ -1,5 +1,5 @@
 import { Check, X } from "@untitledui/icons";
-import { Slide, Kicker, Title } from "../_primitives";
+import { Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type ComparisonRow = {
     label: string;
@@ -24,8 +24,8 @@ export default function ComparisonTable({ kicker, title, columns, rows, highligh
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div className="mt-8 overflow-hidden rounded-xl border border-secondary">
                 <table className="w-full">
@@ -40,7 +40,9 @@ export default function ComparisonTable({ kicker, title, columns, rows, highligh
                                         (highlightColumn === i ? "bg-brand-primary text-brand-secondary" : "text-quaternary")
                                     }
                                 >
-                                    {c}
+                                    <Trace path={`columns.${i}`}>
+                                        <span>{c}</span>
+                                    </Trace>
                                 </th>
                             ))}
                         </tr>
@@ -48,7 +50,11 @@ export default function ComparisonTable({ kicker, title, columns, rows, highligh
                     <tbody>
                         {rows.map((row, i) => (
                             <tr key={i} className="border-b border-secondary last:border-0">
-                                <td className="px-5 py-3 text-sm font-medium text-secondary">{row.label}</td>
+                                <td className="px-5 py-3 text-sm font-medium text-secondary">
+                                    <Trace path={`rows.${i}.label`}>
+                                        <span>{row.label}</span>
+                                    </Trace>
+                                </td>
                                 {row.values.map((v, j) => (
                                     <td
                                         key={j}
@@ -57,7 +63,9 @@ export default function ComparisonTable({ kicker, title, columns, rows, highligh
                                             (highlightColumn === j ? "bg-brand-primary" : "")
                                         }
                                     >
-                                        {renderCell(v)}
+                                        <Trace path={`rows.${i}.values.${j}`}>
+                                            <span>{renderCell(v)}</span>
+                                        </Trace>
                                     </td>
                                 ))}
                             </tr>

@@ -1,4 +1,4 @@
-import { Slide, Eyebrow } from "../_primitives";
+import { Slide, Eyebrow, Trace } from "../_primitives";
 
 export type CalloutBannerProps = {
     eyebrow?: string;
@@ -10,12 +10,20 @@ export default function CalloutBanner({ eyebrow, statement, supporting }: Callou
     return (
         <Slide className="justify-center">
             <div className="flex max-w-5xl flex-col gap-6">
-                {eyebrow && <Eyebrow className="text-brand-secondary uppercase tracking-[0.12em] font-semibold">{eyebrow}</Eyebrow>}
-                <p className="text-display-xl font-semibold leading-[1.05] tracking-tight text-primary">
-                    {statement}
-                </p>
+                {eyebrow && (
+                    <Trace path="eyebrow">
+                        <Eyebrow className="text-brand-secondary uppercase tracking-[0.12em] font-semibold">{eyebrow}</Eyebrow>
+                    </Trace>
+                )}
+                <Trace path="statement">
+                    <p className="text-display-xl font-semibold leading-[1.05] tracking-tight text-primary">
+                        {statement}
+                    </p>
+                </Trace>
                 {supporting && (
-                    <p className="text-xl leading-relaxed text-tertiary max-w-3xl">{supporting}</p>
+                    <Trace path="supporting">
+                        <p className="text-xl leading-relaxed text-tertiary max-w-3xl">{supporting}</p>
+                    </Trace>
                 )}
             </div>
         </Slide>

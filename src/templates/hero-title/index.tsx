@@ -1,5 +1,5 @@
 import { ArrowRight } from "@untitledui/icons";
-import { Slide } from "../_primitives";
+import { Slide, Trace } from "../_primitives";
 
 export type HeroTitleProps = {
     kicker?: string;
@@ -15,22 +15,28 @@ export default function HeroTitle({ kicker, title, subtitle, callout }: HeroTitl
                 {kicker && (
                     <div className="flex items-center gap-3">
                         <span className="h-px w-10 bg-brand-solid" />
-                        <span className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-secondary">
-                            {kicker}
-                        </span>
+                        <Trace path="kicker">
+                            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-secondary">
+                                {kicker}
+                            </span>
+                        </Trace>
                     </div>
                 )}
-                <h1 className="text-[112px] font-semibold leading-[0.95] tracking-[-0.04em] text-primary max-w-[18ch]">
-                    {title}
-                </h1>
+                <Trace path="title">
+                    <h1 className="text-[112px] font-semibold leading-[0.95] tracking-[-0.04em] text-primary max-w-[18ch]">
+                        {title}
+                    </h1>
+                </Trace>
                 {subtitle && (
-                    <p className="text-2xl leading-snug text-tertiary max-w-2xl">
-                        {subtitle}
-                    </p>
+                    <Trace path="subtitle">
+                        <p className="text-2xl leading-snug text-tertiary max-w-2xl">{subtitle}</p>
+                    </Trace>
                 )}
                 {callout && (
                     <div className="mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-secondary bg-secondary/40 px-4 py-2 text-sm font-medium text-secondary">
-                        <span>{callout}</span>
+                        <Trace path="callout">
+                            <span>{callout}</span>
+                        </Trace>
                         <ArrowRight className="size-4" aria-hidden />
                     </div>
                 )}

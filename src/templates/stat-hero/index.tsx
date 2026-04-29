@@ -1,5 +1,5 @@
 import { TrendUp01 } from "@untitledui/icons";
-import { AddGhostSlot, Slide, Kicker, Body } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Body, Trace } from "../_primitives";
 
 export type StatHeroProps = {
     kicker?: string;
@@ -14,30 +14,44 @@ export type StatHeroProps = {
 export default function StatHero({ kicker, heroValue, heroLabel, heroNote, trend, supporting, _onAdd }: StatHeroProps) {
     return (
         <Slide>
-            {kicker && <Kicker className="mb-6">{kicker}</Kicker>}
+            {kicker && <Trace path="kicker"><Kicker className="mb-6">{kicker}</Kicker></Trace>}
             <div className="flex flex-1 flex-col justify-center">
                 <div className="flex items-baseline gap-6">
-                    <div className="text-[180px] font-semibold leading-none tracking-[-0.05em] text-primary tabular-nums">
-                        {heroValue}
-                    </div>
+                    <Trace path="heroValue">
+                        <div className="text-[180px] font-semibold leading-none tracking-[-0.05em] text-primary tabular-nums">
+                            {heroValue}
+                        </div>
+                    </Trace>
                     {trend && (
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary px-3 py-1.5 text-sm font-semibold text-brand-secondary">
                             <TrendUp01 className="size-4" aria-hidden />
-                            <span className="tabular-nums">{trend.delta}</span>
+                            <Trace path="trend.delta">
+                                <span className="tabular-nums">{trend.delta}</span>
+                            </Trace>
                         </div>
                     )}
                 </div>
-                <div className="mt-4 text-2xl font-medium text-secondary">{heroLabel}</div>
-                {heroNote && <Body className="mt-3 max-w-2xl text-lg">{heroNote}</Body>}
+                <Trace path="heroLabel">
+                    <div className="mt-4 text-2xl font-medium text-secondary">{heroLabel}</div>
+                </Trace>
+                {heroNote && (
+                    <Trace path="heroNote">
+                        <Body className="mt-3 max-w-2xl text-lg">{heroNote}</Body>
+                    </Trace>
+                )}
             </div>
             {(supporting?.length ?? 0) > 0 || _onAdd ? (
                 <div className="group/ghost mt-6 grid grid-cols-4 gap-10 border-t border-secondary pt-8">
                     {(supporting ?? []).map((s, i) => (
                         <div key={i} className="flex flex-col gap-1.5">
-                            <span className="text-display-xs font-semibold tracking-tight text-primary tabular-nums">
-                                {s.value}
-                            </span>
-                            <span className="text-sm font-medium text-tertiary">{s.label}</span>
+                            <Trace path={`supporting.${i}.value`}>
+                                <span className="text-display-xs font-semibold tracking-tight text-primary tabular-nums">
+                                    {s.value}
+                                </span>
+                            </Trace>
+                            <Trace path={`supporting.${i}.label`}>
+                                <span className="text-sm font-medium text-tertiary">{s.label}</span>
+                            </Trace>
                         </div>
                     ))}
                     <AddGhostSlot path="supporting" onAdd={_onAdd} className="min-h-[80px]" />

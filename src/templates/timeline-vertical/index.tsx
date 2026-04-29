@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type TimelineEvent = {
     date: string;
@@ -18,14 +18,16 @@ export default function TimelineVertical({ kicker, title, events, _onAdd }: Time
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div className="group/ghost mt-10 flex flex-1 flex-col">
                 {events.map((event, i) => (
                     <div key={i} className="grid grid-cols-[140px_28px_1fr] items-start gap-5">
                         <div className="pt-1 text-right">
-                            <div className="text-sm font-mono font-semibold text-brand-secondary tabular-nums">{event.date}</div>
+                            <Trace path={`events.${i}.date`}>
+                                <div className="text-sm font-mono font-semibold text-brand-secondary tabular-nums">{event.date}</div>
+                            </Trace>
                         </div>
                         <div className="flex flex-col items-center self-stretch">
                             <div
@@ -40,7 +42,9 @@ export default function TimelineVertical({ kicker, title, events, _onAdd }: Time
                         </div>
                         <div className="flex flex-col gap-1.5 pb-7">
                             <div className="flex items-center gap-2">
-                                <h3 className="text-md font-semibold text-primary">{event.label}</h3>
+                                <Trace path={`events.${i}.label`}>
+                                    <h3 className="text-md font-semibold text-primary">{event.label}</h3>
+                                </Trace>
                                 {event.active && (
                                     <span className="rounded-full bg-brand-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-secondary">
                                         Now
@@ -48,7 +52,9 @@ export default function TimelineVertical({ kicker, title, events, _onAdd }: Time
                                 )}
                             </div>
                             {event.description && (
-                                <p className="text-sm leading-relaxed text-tertiary">{event.description}</p>
+                                <Trace path={`events.${i}.description`}>
+                                    <p className="text-sm leading-relaxed text-tertiary">{event.description}</p>
+                                </Trace>
                             )}
                         </div>
                     </div>

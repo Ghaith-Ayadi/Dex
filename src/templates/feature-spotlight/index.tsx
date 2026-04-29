@@ -1,6 +1,6 @@
 import { Cube01, LayersThree01, Lightning01 } from "@untitledui/icons";
 import type { FC, SVGProps } from "react";
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type FeatureSpotlightProps = {
     kicker?: string;
@@ -19,22 +19,30 @@ export default function FeatureSpotlight({ kicker, title, feature, secondary, _o
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div className="mt-10 grid flex-1 grid-cols-[1.4fr_1fr] gap-8 content-start">
                 <div className="flex flex-col gap-5 rounded-2xl border border-secondary bg-secondary/50 p-8">
                     <div className="inline-flex size-12 items-center justify-center rounded-xl border border-brand bg-primary">
                         <Icon className="size-6 text-brand-secondary" aria-hidden />
                     </div>
-                    <h3 className="text-display-xs font-semibold tracking-tight text-primary">{feature.heading}</h3>
-                    <p className="text-md leading-relaxed text-tertiary">{feature.body}</p>
+                    <Trace path="feature.heading">
+                        <h3 className="text-display-xs font-semibold tracking-tight text-primary">{feature.heading}</h3>
+                    </Trace>
+                    <Trace path="feature.body">
+                        <p className="text-md leading-relaxed text-tertiary">{feature.body}</p>
+                    </Trace>
                 </div>
                 <div className="group/ghost flex flex-col gap-4">
                     {secondary.map((s, i) => (
                         <div key={i} className="flex flex-col gap-1.5 border-l-2 border-brand pl-4 py-1">
-                            <h4 className="text-sm font-semibold text-primary">{s.heading}</h4>
-                            <p className="text-sm leading-relaxed text-tertiary">{s.body}</p>
+                            <Trace path={`secondary.${i}.heading`}>
+                                <h4 className="text-sm font-semibold text-primary">{s.heading}</h4>
+                            </Trace>
+                            <Trace path={`secondary.${i}.body`}>
+                                <p className="text-sm leading-relaxed text-tertiary">{s.body}</p>
+                            </Trace>
                         </div>
                     ))}
                     <AddGhostSlot path="secondary" onAdd={_onAdd} className="h-14" />

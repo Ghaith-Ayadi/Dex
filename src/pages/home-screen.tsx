@@ -11,26 +11,6 @@ function clone<T>(v: T): T {
     return JSON.parse(JSON.stringify(v));
 }
 
-/* Build a Map<normalized-text, form-path> by walking the props tree.
- * Used to map preview clicks back to form fields. */
-function walkProps(obj: unknown, path = "", out: Map<string, string> = new Map()): Map<string, string> {
-    if (typeof obj === "string") {
-        const key = obj.toLowerCase().replace(/\s+/g, " ").trim();
-        if (key && !out.has(key)) out.set(key, path);
-        return out;
-    }
-    if (Array.isArray(obj)) {
-        obj.forEach((item, i) => walkProps(item, path ? `${path}.${i}` : String(i), out));
-        return out;
-    }
-    if (obj && typeof obj === "object") {
-        for (const [k, v] of Object.entries(obj)) {
-            walkProps(v, path ? `${path}.${k}` : k, out);
-        }
-    }
-    return out;
-}
-
 export const HomeScreen = () => {
     const [selectedId, setSelectedId] = useState<string>(TEMPLATES[0].id);
     const selected = useMemo(
@@ -89,55 +69,34 @@ export const HomeScreen = () => {
         [schema, formProps],
     );
 
-    /* Click (or drag-select) in preview → focus matching form input,
-     * scroll into view, and select the matching substring inside the input.
-     * If the user dragged to highlight a substring (e.g. just "title" out of
-     * "my awesome slide title"), use that substring instead of the full text
-     * of the clicked element. */
+    /* Contextual highlight: click or drag-select in the preview → focus the
+     * matching form input, scroll into view, and select the same substring.
+     *
+     * Path resolution is now deterministic via <Trace> data attributes
+     * (no text matching, no duplicates ambiguity, no decorative pollution).
+     * Substring selection still uses the rendered text so the user can
+     * highlight just a word and have it land in the input.
+     *
+     * mouseup (not click) so drag-select-and-release-outside still fires. */
     const formContainerRef = useRef<HTMLDivElement>(null);
-    const handlePreviewClick = useCallback(
+    const handlePreviewMouseUp = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
-            let text = "";
+            const targetEl = e.target as HTMLElement | null;
+            const traced = targetEl?.closest<HTMLElement>("[data-form-path]");
+            const path = traced?.dataset.formPath;
+            if (!path) return;
 
+            /* Read the user's drag-selection if any; else use the trace's
+             * own textContent as the substring to select in the input. */
+            let needle = "";
             const sel = typeof window !== "undefined" ? window.getSelection() : null;
             if (sel && sel.rangeCount > 0) {
-                const selectedText = sel.toString().replace(/\s+/g, " ").trim();
-                if (selectedText) {
-                    const range = sel.getRangeAt(0);
-                    if (e.currentTarget.contains(range.commonAncestorContainer)) {
-                        text = selectedText;
-                    }
+                const t = sel.toString().replace(/\s+/g, " ").trim();
+                if (t && e.currentTarget.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+                    needle = t;
                 }
             }
-
-            if (!text) {
-                let el = e.target as HTMLElement | null;
-                while (el && el !== e.currentTarget) {
-                    const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
-                    if (t && t.length <= 200) {
-                        text = t;
-                        break;
-                    }
-                    el = el.parentElement;
-                }
-            }
-            if (!text) return;
-
-            const map = walkProps(formProps);
-            const key = text.toLowerCase();
-
-            let path = map.get(key);
-            if (!path) {
-                /* Try prefix matches both ways for cases where the rendered
-                 * element wraps the value (e.g. quote glyphs ahead of text). */
-                for (const [k, p] of map) {
-                    if (k.length >= 6 && (k.startsWith(key) || key.startsWith(k))) {
-                        path = p;
-                        break;
-                    }
-                }
-            }
-            if (!path) return;
+            if (!needle) needle = (traced.textContent ?? "").replace(/\s+/g, " ").trim();
 
             const root = formContainerRef.current;
             if (!root) return;
@@ -146,18 +105,18 @@ export const HomeScreen = () => {
             input.focus({ preventScroll: true });
             input.scrollIntoView({ behavior: "smooth", block: "center" });
 
-            /* Also select the matching substring inside the input so the
-             * user can immediately overwrite the clicked text. */
             if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
                 const v = input.value ?? "";
-                if (v) {
-                    const start = v.toLowerCase().indexOf(text.toLowerCase());
-                    if (start >= 0) input.setSelectionRange(start, start + text.length);
+                if (v && needle) {
+                    const start = v.toLowerCase().indexOf(needle.toLowerCase());
+                    if (start >= 0) input.setSelectionRange(start, start + needle.length);
                     else input.select();
+                } else if (v) {
+                    input.select();
                 }
             }
         },
-        [formProps],
+        [],
     );
 
     const editorPane = (
@@ -192,8 +151,8 @@ export const HomeScreen = () => {
             </div>
             <div
                 className="flex-1 p-8 min-h-0 cursor-pointer"
-                onClick={handlePreviewClick}
-                title="Click any text to focus its input"
+                onMouseUp={handlePreviewMouseUp}
+                title="Click any text to focus its input; drag-select to highlight only part"
             >
                 <ScaledSlide>
                     <Component {...(formProps as object)} _onAdd={handleAddItem} />

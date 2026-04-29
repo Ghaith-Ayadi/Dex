@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type BulletStackProps = {
     kicker?: string;
@@ -12,9 +12,15 @@ export default function BulletStack({ kicker, title, intro, bullets, _onAdd }: B
     return (
         <Slide>
             <div className="flex flex-col gap-5 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
-                {intro && <p className="text-lg leading-relaxed text-tertiary max-w-2xl">{intro}</p>}
+                {kicker && (
+                    <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>
+                )}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
+                {intro && (
+                    <Trace path="intro">
+                        <p className="text-lg leading-relaxed text-tertiary max-w-2xl">{intro}</p>
+                    </Trace>
+                )}
             </div>
             <ul className="group/ghost mt-10 grid flex-1 grid-cols-2 gap-x-12 gap-y-5 content-start">
                 {bullets.map((b, i) => (
@@ -22,7 +28,9 @@ export default function BulletStack({ kicker, title, intro, bullets, _onAdd }: B
                         <span className="text-sm font-mono font-semibold text-brand-secondary tabular-nums w-6 shrink-0 pt-1">
                             {String(i + 1).padStart(2, "0")}
                         </span>
-                        <span>{b}</span>
+                        <Trace path={`bullets.${i}`}>
+                            <span>{b}</span>
+                        </Trace>
                     </li>
                 ))}
                 <li className="contents">

@@ -1,4 +1,4 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type Quadrant = {
     label: string;
@@ -17,30 +17,34 @@ export default function Quadrant2x2({ kicker, title, xAxis, yAxis, quadrants }: 
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div className="mt-8 flex flex-1 gap-4">
                 {yAxis && (
                     <div className="flex w-6 flex-col items-center justify-between py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-quaternary">
-                        <span>{yAxis.high}</span>
+                        <Trace path="yAxis.high"><span>{yAxis.high}</span></Trace>
                         <span className="h-px w-3 bg-border-secondary" />
-                        <span>{yAxis.low}</span>
+                        <Trace path="yAxis.low"><span>{yAxis.low}</span></Trace>
                     </div>
                 )}
                 <div className="flex flex-1 flex-col gap-2">
                     <div className="grid flex-1 grid-cols-2 gap-px content-stretch overflow-hidden rounded-xl border border-secondary bg-border-secondary">
                         {quadrants.map((q, i) => (
                             <div key={i} className="flex flex-col gap-2 bg-primary p-6">
-                                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-secondary">{q.label}</div>
-                                <p className="text-sm leading-relaxed text-secondary">{q.body}</p>
+                                <Trace path={`quadrants.${i}.label`}>
+                                    <div className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-secondary">{q.label}</div>
+                                </Trace>
+                                <Trace path={`quadrants.${i}.body`}>
+                                    <p className="text-sm leading-relaxed text-secondary">{q.body}</p>
+                                </Trace>
                             </div>
                         ))}
                     </div>
                     {xAxis && (
                         <div className="mt-2 flex justify-between text-[10px] font-semibold uppercase tracking-[0.12em] text-quaternary">
-                            <span>{xAxis.low}</span>
-                            <span>{xAxis.high}</span>
+                            <Trace path="xAxis.low"><span>{xAxis.low}</span></Trace>
+                            <Trace path="xAxis.high"><span>{xAxis.high}</span></Trace>
                         </div>
                     )}
                 </div>

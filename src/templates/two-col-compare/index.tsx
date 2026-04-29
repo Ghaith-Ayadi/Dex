@@ -1,4 +1,4 @@
-import { Slide, Kicker, Title } from "../_primitives";
+import { Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type TwoColCompareProps = {
     kicker?: string;
@@ -13,8 +13,8 @@ export default function TwoColCompare({ kicker, title, columns }: TwoColCompareP
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div className="mt-10 grid flex-1 grid-cols-2 gap-6 content-start">
                 {columns.map((col, i) => (
@@ -28,7 +28,9 @@ export default function TwoColCompare({ kicker, title, columns }: TwoColCompareP
                         }
                     >
                         <div className="flex items-center justify-between">
-                            <h3 className="text-md font-semibold text-primary">{col.label}</h3>
+                            <Trace path={`columns.${i}.label`}>
+                                <h3 className="text-md font-semibold text-primary">{col.label}</h3>
+                            </Trace>
                             {i === 1 && (
                                 <span className="rounded-full bg-brand-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-secondary">
                                     Now
@@ -39,7 +41,9 @@ export default function TwoColCompare({ kicker, title, columns }: TwoColCompareP
                             {col.bullets.map((b, j) => (
                                 <li key={j} className="flex gap-3 text-sm leading-relaxed text-secondary">
                                     <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-solid" />
-                                    <span>{b}</span>
+                                    <Trace path={`columns.${i}.bullets.${j}`}>
+                                        <span>{b}</span>
+                                    </Trace>
                                 </li>
                             ))}
                         </ul>

@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type AgendaTocProps = {
     kicker?: string;
@@ -12,8 +12,8 @@ export default function AgendaToc({ kicker, title, items, activeIndex, _onAdd }:
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <ol className="group/ghost mt-10 flex flex-1 flex-col">
                 {items.map((item, i) => {
@@ -35,16 +35,20 @@ export default function AgendaToc({ kicker, title, items, activeIndex, _onAdd }:
                                 {String(i + 1).padStart(2, "0")}
                             </span>
                             <div className="flex-1 flex flex-col gap-1">
-                                <span
-                                    className={
-                                        "text-xl tracking-tight " +
-                                        (isActive ? "font-semibold text-primary" : "font-medium text-secondary")
-                                    }
-                                >
-                                    {item.title}
-                                </span>
+                                <Trace path={`items.${i}.title`}>
+                                    <span
+                                        className={
+                                            "text-xl tracking-tight " +
+                                            (isActive ? "font-semibold text-primary" : "font-medium text-secondary")
+                                        }
+                                    >
+                                        {item.title}
+                                    </span>
+                                </Trace>
                                 {item.description && (
-                                    <span className="text-sm text-tertiary">{item.description}</span>
+                                    <Trace path={`items.${i}.description`}>
+                                        <span className="text-sm text-tertiary">{item.description}</span>
+                                    </Trace>
                                 )}
                             </div>
                             {isActive && (

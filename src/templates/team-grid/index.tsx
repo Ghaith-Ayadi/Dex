@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type TeamMember = {
     name: string;
@@ -26,8 +26,8 @@ export default function TeamGrid({ kicker, title, members, _onAdd }: TeamGridPro
     return (
         <Slide>
             <div className="flex max-w-3xl flex-col gap-4">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div
                 className="group/ghost mt-10 grid flex-1 gap-6 content-start"
@@ -44,10 +44,18 @@ export default function TeamGrid({ kicker, title, members, _onAdd }: TeamGridPro
                             {m.initials ?? makeInitials(m.name)}
                         </div>
                         <div className="flex flex-col gap-1">
-                            <h3 className="text-md font-semibold text-primary">{m.name}</h3>
-                            <p className="text-xs font-medium uppercase tracking-wider text-brand-secondary">{m.role}</p>
+                            <Trace path={`members.${i}.name`}>
+                                <h3 className="text-md font-semibold text-primary">{m.name}</h3>
+                            </Trace>
+                            <Trace path={`members.${i}.role`}>
+                                <p className="text-xs font-medium uppercase tracking-wider text-brand-secondary">{m.role}</p>
+                            </Trace>
                         </div>
-                        {m.bio && <p className="text-sm leading-relaxed text-tertiary">{m.bio}</p>}
+                        {m.bio && (
+                            <Trace path={`members.${i}.bio`}>
+                                <p className="text-sm leading-relaxed text-tertiary">{m.bio}</p>
+                            </Trace>
+                        )}
                     </div>
                 ))}
                 <AddGhostSlot path="members" onAdd={_onAdd} className="min-h-[180px]" />

@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type QuoteFeatureProps = {
     kicker?: string;
@@ -12,8 +12,8 @@ export default function QuoteFeature({ kicker, title, quotes, _onAdd }: QuoteFea
     return (
         <Slide>
             <div className="flex flex-col gap-4 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                {title && <Title size="md">{title}</Title>}
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                {title && <Trace path="title"><Title size="md">{title}</Title></Trace>}
             </div>
             <div
                 className="group/ghost mt-10 grid flex-1 gap-5 content-start"
@@ -24,14 +24,22 @@ export default function QuoteFeature({ kicker, title, quotes, _onAdd }: QuoteFea
                         <span aria-hidden className="font-serif text-5xl leading-none text-brand-secondary opacity-30 select-none">
                             &ldquo;
                         </span>
-                        <blockquote className="-mt-3 text-lg leading-relaxed text-primary">
-                            {q.text}
-                        </blockquote>
+                        <Trace path={`quotes.${i}.text`}>
+                            <blockquote className="-mt-3 text-lg leading-relaxed text-primary">
+                                {q.text}
+                            </blockquote>
+                        </Trace>
                         <figcaption className="flex items-center gap-3">
                             <span className="h-px w-6 bg-brand-solid" />
                             <div className="flex flex-col gap-0.5">
-                                <span className="text-sm font-semibold text-primary">{q.author}</span>
-                                {q.role && <span className="text-xs text-tertiary">{q.role}</span>}
+                                <Trace path={`quotes.${i}.author`}>
+                                    <span className="text-sm font-semibold text-primary">{q.author}</span>
+                                </Trace>
+                                {q.role && (
+                                    <Trace path={`quotes.${i}.role`}>
+                                        <span className="text-xs text-tertiary">{q.role}</span>
+                                    </Trace>
+                                )}
                             </div>
                         </figcaption>
                     </figure>

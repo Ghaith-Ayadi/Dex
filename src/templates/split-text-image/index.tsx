@@ -1,5 +1,5 @@
 import { Image01 } from "@untitledui/icons";
-import { Slide, Kicker, Title } from "../_primitives";
+import { Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type SplitTextImageProps = {
     kicker?: string;
@@ -12,9 +12,11 @@ export type SplitTextImageProps = {
 export default function SplitTextImage({ kicker, title, body, imageAlt, imageSide = "right" }: SplitTextImageProps) {
     const text = (
         <div className="flex flex-col justify-center gap-6">
-            {kicker && <Kicker>{kicker}</Kicker>}
-            <Title size="md">{title}</Title>
-            <p className="text-lg leading-relaxed text-tertiary max-w-md">{body}</p>
+            {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+            <Trace path="title"><Title size="md">{title}</Title></Trace>
+            <Trace path="body">
+                <p className="text-lg leading-relaxed text-tertiary max-w-md">{body}</p>
+            </Trace>
         </div>
     );
 
@@ -30,7 +32,9 @@ export default function SplitTextImage({ kicker, title, body, imageAlt, imageSid
         >
             <div className="flex flex-col items-center gap-2 rounded-xl border border-secondary bg-primary px-5 py-4 text-tertiary shadow-sm">
                 <Image01 className="size-7 text-brand-secondary" aria-hidden />
-                <span className="text-xs font-medium uppercase tracking-wider">{imageAlt ?? "image"}</span>
+                <Trace path="imageAlt">
+                    <span className="text-xs font-medium uppercase tracking-wider">{imageAlt ?? "image"}</span>
+                </Trace>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type OrderedFlowStep = {
     lead: string;
@@ -17,8 +17,8 @@ export default function OrderedFlow({ kicker, title, steps, _onAdd }: OrderedFlo
     return (
         <Slide>
             <div className="flex flex-col gap-5 max-w-3xl">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div
                 className="group/ghost mt-12 grid flex-1 gap-6 content-start"
@@ -34,8 +34,12 @@ export default function OrderedFlow({ kicker, title, steps, _onAdd }: OrderedFlo
                                 <div className="h-px flex-1 bg-border-secondary" />
                             )}
                         </div>
-                        <h3 className="text-lg font-semibold tracking-tight text-primary mt-2">{step.lead}</h3>
-                        <p className="text-sm leading-relaxed text-tertiary">{step.body}</p>
+                        <Trace path={`steps.${i}.lead`}>
+                            <h3 className="text-lg font-semibold tracking-tight text-primary mt-2">{step.lead}</h3>
+                        </Trace>
+                        <Trace path={`steps.${i}.body`}>
+                            <p className="text-sm leading-relaxed text-tertiary">{step.body}</p>
+                        </Trace>
                     </div>
                 ))}
                 <AddGhostSlot path="steps" onAdd={_onAdd} className="min-h-[140px]" />

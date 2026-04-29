@@ -1,5 +1,5 @@
 import { Check } from "@untitledui/icons";
-import { AddGhostSlot, Slide, Kicker, Title } from "../_primitives";
+import { AddGhostSlot, Slide, Kicker, Title, Trace } from "../_primitives";
 
 export type PricingTier = {
     name: string;
@@ -22,8 +22,8 @@ export default function PricingTiers({ kicker, title, tiers, _onAdd }: PricingTi
     return (
         <Slide>
             <div className="flex max-w-3xl flex-col gap-4">
-                {kicker && <Kicker>{kicker}</Kicker>}
-                <Title size="md">{title}</Title>
+                {kicker && <Trace path="kicker"><Kicker>{kicker}</Kicker></Trace>}
+                <Trace path="title"><Title size="md">{title}</Title></Trace>
             </div>
             <div
                 className="group/ghost mt-10 grid flex-1 gap-4 content-stretch"
@@ -40,22 +40,32 @@ export default function PricingTiers({ kicker, title, tiers, _onAdd }: PricingTi
                         }
                     >
                         {tier.badge && (
-                            <span className="absolute -top-3 left-7 inline-flex items-center rounded-full bg-brand-solid px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
-                                {tier.badge}
-                            </span>
+                            <Trace path={`tiers.${i}.badge`}>
+                                <span className="absolute -top-3 left-7 inline-flex items-center rounded-full bg-brand-solid px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+                                    {tier.badge}
+                                </span>
+                            </Trace>
                         )}
                         <div className="flex flex-col gap-2">
-                            <h3 className="text-md font-semibold text-primary">{tier.name}</h3>
+                            <Trace path={`tiers.${i}.name`}>
+                                <h3 className="text-md font-semibold text-primary">{tier.name}</h3>
+                            </Trace>
                             <div className="flex items-baseline gap-1.5">
-                                <span className="text-display-md font-semibold tracking-[-0.03em] text-primary tabular-nums">
-                                    {tier.price}
-                                </span>
+                                <Trace path={`tiers.${i}.price`}>
+                                    <span className="text-display-md font-semibold tracking-[-0.03em] text-primary tabular-nums">
+                                        {tier.price}
+                                    </span>
+                                </Trace>
                                 {tier.cadence && (
-                                    <span className="text-sm font-medium text-tertiary">/ {tier.cadence}</span>
+                                    <Trace path={`tiers.${i}.cadence`}>
+                                        <span className="text-sm font-medium text-tertiary">/ {tier.cadence}</span>
+                                    </Trace>
                                 )}
                             </div>
                             {tier.description && (
-                                <p className="text-sm text-tertiary leading-relaxed">{tier.description}</p>
+                                <Trace path={`tiers.${i}.description`}>
+                                    <p className="text-sm text-tertiary leading-relaxed">{tier.description}</p>
+                                </Trace>
                             )}
                         </div>
                         <div className="h-px bg-border-secondary" />
@@ -65,7 +75,9 @@ export default function PricingTiers({ kicker, title, tiers, _onAdd }: PricingTi
                                     <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-brand-primary">
                                         <Check className="size-3 text-brand-secondary" aria-hidden />
                                     </span>
-                                    <span>{f}</span>
+                                    <Trace path={`tiers.${i}.features.${j}`}>
+                                        <span>{f}</span>
+                                    </Trace>
                                 </li>
                             ))}
                         </ul>
