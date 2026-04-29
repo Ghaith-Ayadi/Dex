@@ -20,6 +20,7 @@ import LogoGrid, { canonical as logoGridCanonical } from "./logo-grid";
 import TeamGrid, { canonical as teamGridCanonical } from "./team-grid";
 import ComparisonTable, { canonical as comparisonTableCanonical } from "./comparison-table";
 import SectionDivider, { canonical as sectionDividerCanonical } from "./section-divider";
+import Checklist, { canonical as checklistCanonical } from "./checklist";
 
 export type TemplateEntry = {
     id: string;
@@ -41,6 +42,7 @@ export const TEMPLATES: TemplateEntry[] = [
     { id: "feature-spotlight", name: "Feature Spotlight", category: "structure", component: FeatureSpotlight, canonical: featureSpotlightCanonical },
     { id: "ordered-flow", name: "Ordered Flow", category: "structure", component: OrderedFlow, canonical: orderedFlowCanonical },
     { id: "timeline-vertical", name: "Timeline (Vertical)", category: "structure", component: TimelineVertical, canonical: timelineVerticalCanonical },
+    { id: "checklist", name: "Checklist", category: "structure", component: Checklist, canonical: checklistCanonical },
     { id: "stat-hero", name: "Stat Hero", category: "data", component: StatHero, canonical: statHeroCanonical },
     { id: "quote-feature", name: "Quote Feature", category: "text", component: QuoteFeature, canonical: quoteFeatureCanonical },
     { id: "two-col-compare", name: "Two-column Compare", category: "comparison", component: TwoColCompare, canonical: twoColCompareCanonical },

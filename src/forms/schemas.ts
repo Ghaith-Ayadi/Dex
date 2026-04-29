@@ -62,7 +62,7 @@ export const SCHEMAS: Record<string, TemplateSchema> = {
     "bullet-stack": [
         KICKER(),
         TITLE(),
-        SUBTITLE("Intro"),
+        { kind: "textarea", key: "intro", label: "Intro", rows: 2, maxLength: 200 },
         {
             kind: "list",
             key: "bullets",
@@ -366,6 +366,24 @@ export const SCHEMAS: Record<string, TemplateSchema> = {
                 { kind: "text", key: "role", label: "Role", required: true, maxLength: 60 },
                 { kind: "textarea", key: "bio", label: "Bio", rows: 3, maxLength: 200 },
                 { kind: "text", key: "initials", label: "Initials override", maxLength: 4 },
+            ],
+        },
+    ],
+
+    "checklist": [
+        KICKER(),
+        TITLE(),
+        { kind: "textarea", key: "intro", label: "Intro", rows: 2, maxLength: 200 },
+        {
+            kind: "list",
+            key: "items",
+            label: "Items",
+            itemLabel: "Item",
+            min: 2,
+            max: 10,
+            itemFields: [
+                { kind: "textarea", key: "text", label: "Text", required: true, rows: 2, maxLength: 200 },
+                { kind: "toggle", key: "done", label: "Mark as done" },
             ],
         },
     ],
