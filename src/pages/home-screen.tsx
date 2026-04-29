@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { NavHeader } from "@/components/nav/header";
+import { PreviewCaretOverlay } from "@/components/preview-caret";
 import { SplitPane } from "@/components/split-pane/split-pane";
 import { FormRenderer } from "@/forms/form-renderer";
 import { defaultItemFor, findListField, firstInputPathFor, getAtPath, listInsert } from "@/forms/schema";
@@ -9,6 +10,21 @@ import { ScaledSlide } from "@/templates/_primitives";
 
 function clone<T>(v: T): T {
     return JSON.parse(JSON.stringify(v));
+}
+
+/* Compute the character offset within `root` corresponding to a DOM
+ * (container, offsetInContainer) tuple. Uses Range.toString() so it
+ * handles both text-node and element-node containers correctly. */
+function offsetWithin(root: HTMLElement, container: Node, offsetInContainer: number): number {
+    if (!root.contains(container) && container !== root) return 0;
+    const range = document.createRange();
+    range.setStart(root, 0);
+    try {
+        range.setEnd(container, offsetInContainer);
+    } catch {
+        return 0;
+    }
+    return range.toString().length;
 }
 
 export const HomeScreen = () => {
@@ -69,16 +85,15 @@ export const HomeScreen = () => {
         [schema, formProps],
     );
 
-    /* Contextual highlight: click or drag-select in the preview → focus the
-     * matching form input, scroll into view, and select the same substring.
+    /* Contextual highlight: click in preview = caret at exact offset in
+     * input (no select-all). Drag-select = mirrored range. Both stay in
+     * sync via PreviewCaretOverlay observing the input's selection state.
      *
-     * Path resolution is now deterministic via <Trace> data attributes
-     * (no text matching, no duplicates ambiguity, no decorative pollution).
-     * Substring selection still uses the rendered text so the user can
-     * highlight just a word and have it land in the input.
-     *
-     * mouseup (not click) so drag-select-and-release-outside still fires. */
+     * Path resolution: e.target.closest('[data-form-path]'). Offsets are
+     * computed via Range.toString().length on the trace element. */
     const formContainerRef = useRef<HTMLDivElement>(null);
+    const slideRootRef = useRef<HTMLDivElement>(null);
+
     const handlePreviewMouseUp = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
             const targetEl = e.target as HTMLElement | null;
@@ -86,34 +101,33 @@ export const HomeScreen = () => {
             const path = traced?.dataset.formPath;
             if (!path) return;
 
-            /* Read the user's drag-selection if any; else use the trace's
-             * own textContent as the substring to select in the input. */
-            let needle = "";
+            let start = 0;
+            let end = 0;
             const sel = typeof window !== "undefined" ? window.getSelection() : null;
             if (sel && sel.rangeCount > 0) {
-                const t = sel.toString().replace(/\s+/g, " ").trim();
-                if (t && e.currentTarget.contains(sel.getRangeAt(0).commonAncestorContainer)) {
-                    needle = t;
+                const range = sel.getRangeAt(0);
+                if (traced.contains(range.startContainer)) {
+                    start = offsetWithin(traced, range.startContainer, range.startOffset);
+                }
+                if (traced.contains(range.endContainer)) {
+                    end = offsetWithin(traced, range.endContainer, range.endOffset);
+                } else {
+                    end = start;
                 }
             }
-            if (!needle) needle = (traced.textContent ?? "").replace(/\s+/g, " ").trim();
 
             const root = formContainerRef.current;
             if (!root) return;
             const input = root.querySelector<HTMLElement>(`[data-form-path="${CSS.escape(path)}"]`);
             if (!input) return;
-            input.focus({ preventScroll: true });
             input.scrollIntoView({ behavior: "smooth", block: "center" });
+            input.focus({ preventScroll: true });
 
             if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-                const v = input.value ?? "";
-                if (v && needle) {
-                    const start = v.toLowerCase().indexOf(needle.toLowerCase());
-                    if (start >= 0) input.setSelectionRange(start, start + needle.length);
-                    else input.select();
-                } else if (v) {
-                    input.select();
-                }
+                const valueLen = (input.value ?? "").length;
+                const lo = Math.max(0, Math.min(valueLen, Math.min(start, end)));
+                const hi = Math.max(0, Math.min(valueLen, Math.max(start, end)));
+                input.setSelectionRange(lo, hi);
             }
         },
         [],
@@ -150,9 +164,10 @@ export const HomeScreen = () => {
                 <span className="text-[10px] text-quaternary">{selected.id}</span>
             </div>
             <div
-                className="flex-1 p-8 min-h-0 cursor-pointer"
+                ref={slideRootRef}
+                className="flex-1 p-8 min-h-0"
                 onMouseUp={handlePreviewMouseUp}
-                title="Click any text to focus its input; drag-select to highlight only part"
+                title="Click any text to place a cursor; drag to select"
             >
                 <ScaledSlide>
                     <Component {...(formProps as object)} _onAdd={handleAddItem} />
@@ -202,6 +217,8 @@ export const HomeScreen = () => {
                     />
                 </div>
             </div>
+
+            <PreviewCaretOverlay slideRootRef={slideRootRef} formRootRef={formContainerRef} />
         </div>
     );
 };

@@ -29,6 +29,22 @@
     transition-timing-function: inherit;
 }
 
+/* Trace spans (display: contents) get an I-beam cursor so traced text
+ * in the slide preview feels like a text-editing surface. Inputs and
+ * non-span data-form-path holders are unaffected. */
+span[data-form-path] {
+    cursor: text;
+}
+
+@keyframes dex-caret-blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+@utility animate-caret-blink {
+    animation: dex-caret-blink 1.06s steps(1) infinite;
+}
+
 html,
 body {
     font-family: var(--font-body);
